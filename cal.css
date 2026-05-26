@@ -1,0 +1,213 @@
+/* Cal-inspired UI layer (loaded after style.css) */
+
+:root {
+  --cal-bg: #f7f7f8;
+  --cal-surface: #ffffff;
+  --cal-surface-2: rgba(255, 255, 255, 0.72);
+  --cal-text: #0f172a;
+  --cal-muted: rgba(15, 23, 42, 0.62);
+  --cal-border: rgba(2, 6, 23, 0.10);
+  --cal-border-2: rgba(2, 6, 23, 0.14);
+  --cal-shadow: 0 14px 44px rgba(2, 6, 23, 0.10);
+  --cal-shadow-soft: 0 10px 28px rgba(2, 6, 23, 0.08);
+  --cal-radius: 16px;
+  --cal-radius-sm: 12px;
+  --cal-radius-xs: 10px;
+  --cal-radius-pill: 999px;
+  --cal-focus: 0 0 0 4px rgba(0, 0, 0, 0.08);
+}
+
+html,
+body {
+  background: var(--cal-bg);
+  color: var(--cal-text);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* Make app feel less “heavy” globally */
+#app {
+  background: var(--cal-bg);
+}
+
+/* ------------------------------------------------------------------
+   Feed (Moments-like) — tighten to Cal minimalism
+   ------------------------------------------------------------------ */
+
+.app-view.feed-app {
+  background-color: var(--cal-bg);
+  color: var(--cal-text);
+}
+
+.feed-app .feed-moments-bg-mask {
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.18),
+    rgba(0, 0, 0, 0.06) 30%,
+    rgba(247, 247, 248, 0.90) 70%,
+    rgba(247, 247, 248, 1)
+  );
+}
+
+.feed-app .journal-header {
+  background: rgba(255, 255, 255, 0.70);
+  border-bottom: 1px solid var(--cal-border);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.feed-app .journal-title {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--cal-text);
+  text-shadow: none;
+}
+
+.feed-app .journal-back,
+.feed-app .journal-profile-btn {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--cal-border);
+  border-radius: var(--cal-radius-sm);
+  color: rgba(15, 23, 42, 0.78);
+}
+
+.feed-app .journal-back:hover,
+.feed-app .journal-profile-btn:hover {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: var(--cal-border-2);
+}
+
+.feed-app .journal-content {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+/* Post card */
+.feed-app .entry-card {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid var(--cal-border);
+  border-radius: var(--cal-radius);
+  box-shadow: var(--cal-shadow-soft);
+  padding: 14px 14px 12px;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+.feed-app .entry-author {
+  margin-bottom: 10px;
+}
+
+.feed-app .author-avatar {
+  border-radius: var(--cal-radius-xs);
+}
+
+.feed-app .author-name {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--cal-text);
+}
+
+.feed-app .entry-text {
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.feed-app .entry-time {
+  color: var(--cal-muted);
+}
+
+/* Common chip/button shapes in feed */
+.feed-app .action-icon,
+.feed-app .entry-action-btn,
+.feed-app .entry-action-btn-mini,
+.feed-app .back-btn-small {
+  border-radius: var(--cal-radius-sm);
+}
+
+/* ------------------------------------------------------------------
+   Feed secondary pages (create post / profile / edit) — consistent panels
+   ------------------------------------------------------------------ */
+
+.feed-app .create-post-overlay,
+.feed-app .profile-overlay,
+.feed-app .edit-profile-overlay,
+.feed-app .role-comment-overlay,
+.feed-app .wechat-sheet-overlay,
+.feed-app .image-viewer-overlay {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.feed-app .create-post-panel,
+.feed-app .profile-panel,
+.feed-app .edit-profile-panel,
+.feed-app .role-comment-panel {
+  background: var(--cal-bg);
+}
+
+.feed-app .create-post-header,
+.feed-app .profile-header,
+.feed-app .edit-profile-header,
+.feed-app .role-comment-header {
+  background: rgba(255, 255, 255, 0.70);
+  border-bottom: 1px solid var(--cal-border);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.feed-app .create-post-header span,
+.feed-app .profile-header span,
+.feed-app .edit-profile-header span,
+.feed-app .role-comment-header span {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 650;
+  color: var(--cal-text);
+}
+
+.feed-app .create-post-content,
+.feed-app .role-comment-content,
+.feed-app .edit-profile-content,
+.feed-app .profile-content {
+  background: transparent;
+}
+
+.feed-app .edit-input-group input,
+.feed-app .edit-input-group textarea {
+  border: 1px solid var(--cal-border);
+  border-radius: var(--cal-radius-sm);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.feed-app .edit-input-group input:focus,
+.feed-app .edit-input-group textarea:focus {
+  outline: none;
+  box-shadow: var(--cal-focus);
+  border-color: var(--cal-border-2);
+}
+
+.feed-app .publish-btn.wechat,
+.feed-app .publish-btn,
+.feed-app .save-btn,
+.feed-app .generate-btn {
+  border-radius: var(--cal-radius-pill);
+  border: 1px solid var(--cal-border);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--cal-text);
+}
+
+.feed-app .publish-btn.wechat:hover,
+.feed-app .publish-btn:hover,
+.feed-app .save-btn:hover,
+.feed-app .generate-btn:hover {
+  border-color: var(--cal-border-2);
+  background: #ffffff;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+

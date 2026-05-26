@@ -1,2 +1,3 @@
-# SoulPocket
-LILPHONE chat with AI
+# Cal Inspired Design System
+
+Design system details have been moved to: https://getdesign.md/cal/design-md
