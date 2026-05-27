@@ -1526,11 +1526,9 @@ export function setupApp() {
         // --- Lifecycle Hook ---
         onMounted(() => {
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                    for(let registration of registrations) {
-                        registration.unregister();
-                    }
-                });
+                navigator.serviceWorker.register('./sw.js')
+                  .then(registration => console.log('ServiceWorker 注册成功:', registration.scope))
+                  .catch(err => console.log('ServiceWorker 注册失败:', err));
             }
 
             updateTime();
@@ -4064,13 +4062,14 @@ ${styleGuide}
             }
         });
 
-        const musicState = useMusic({ characters, currentCharacter: selectedCharacter });
+        const musicState = useMusic({ characters, currentCharacter: selectedCharacter, activeProfile, chatHistorySource: soulLinkMessages });
         const music = musicState.music;
         const currentTrack = musicState.currentTrack;
         const progressPercent = musicState.progressPercent;
         const currentTimeText = musicState.currentTimeText;
         const durationText = musicState.durationText;
         const activeLyricIndex = musicState.activeLyricIndex;
+        const lyricsScrollBox = musicState.lyricsScrollBox;
         const isCurrentFavorite = musicState.isCurrentFavorite;
         const toggleMusicPlayPause = () => { musicState.toggleMusicPlayPause(); };
         const musicPlayPrevious = () => musicState.playPrevious();
@@ -4138,6 +4137,7 @@ ${styleGuide}
             currentTimeText,
             durationText,
             activeLyricIndex,
+            lyricsScrollBox,
             isCurrentFavorite,
             toggleMusicPlayPause,
             musicPlayPrevious,
@@ -4151,6 +4151,9 @@ ${styleGuide}
             musicToggleFavorite: musicState.toggleFavorite,
             musicSearchOnlineSongs: musicState.searchOnlineSongs,
             musicClearSearch: musicState.clearSearch,
+            musicGenerateCharPlaylistByAI: musicState.generateCharPlaylistByAI,
+            musicPlayCharPlaylistWith: musicState.playCharPlaylistWith,
+            fetchPublicCommentsForCurrentTrack: musicState.fetchPublicCommentsForCurrentTrack,
             musicSeekFromEvent: musicState.seekFromEvent,
             musicSetVolume: musicState.setVolume,
             musicCycleRepeatMode: musicState.cycleRepeatMode,
@@ -4205,6 +4208,7 @@ ${styleGuide}
             currentTimeText,
             durationText,
             activeLyricIndex,
+            lyricsScrollBox,
             isCurrentFavorite,
             toggleMusicPlayPause,
             musicPlayPrevious,
@@ -4218,6 +4222,8 @@ ${styleGuide}
             musicToggleFavorite: musicState.toggleFavorite,
             musicSearchOnlineSongs: musicState.searchOnlineSongs,
             musicClearSearch: musicState.clearSearch,
+            musicGenerateCharPlaylistByAI: musicState.generateCharPlaylistByAI,
+            musicPlayCharPlaylistWith: musicState.playCharPlaylistWith,
             musicSeekFromEvent: musicState.seekFromEvent,
             musicSetVolume: musicState.setVolume,
             musicCycleRepeatMode: musicState.cycleRepeatMode,

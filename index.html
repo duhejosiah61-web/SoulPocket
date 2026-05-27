@@ -18,11 +18,12 @@
     <title>SoulPocket</title>
     <link rel="icon" href="图标.jpg" type="image/jpeg">
     <link rel="apple-touch-icon" href="图标.jpg">
+    <link rel="manifest" href="./manifest.json">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Long+Cang&family=ZCOOL+XiaoWei&family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Caveat:wght@400;500;600&display=swap">
     <link rel="stylesheet" href="main.css?v=uno2026043">
-    <link rel="stylesheet" href="style.css?v=uno2026045">
+    <link rel="stylesheet" href="style.css?v=uno2026048">
     <link rel="stylesheet" href="cal.css?v=uno2026044">
     
     <script type="importmap">
@@ -145,8 +146,8 @@
                                     <div class="left-peek-toolbar">
                                         <select name="sp_field_1" id="sp-field-1" class="left-peek-select" :value="peek.peekSelectedCharacterId" @change="peek.selectPeekCharacter($event.target.value)">
                                             <option value="">选择角色手机</option>
-                                            <option v-for="char in characters" :key="char.id" :value="char.id">
-                                                {{ char.nickname || char.name || '未命名' }}
+                                            <option v-for="char in (characters || []).filter(Boolean)" :key="char?.id || char?.name || 'char-item'" :value="char?.id">
+                                                {{ char?.nickname || char?.name || '未命名' }}
                                             </option>
                                         </select>
                                         <button class="left-peek-theme-btn" @click="peek.peekDark = !peek.peekDark" :title="peek.peekDark ? '浅色' : '深色'">
@@ -166,7 +167,7 @@
                                             <div class="left-peek-hero-meta">{{ peek.peekSelectedCharacter.persona || peek.peekSelectedCharacter.summary || '角色手机预览' }}</div>
                                         </div>
                                     </div>
-                                    <div v-else class="left-peek-phone-wrap">
+                                    <div v-if="peek.peekSelectedCharacter" class="left-peek-phone-wrap">
                                         <div class="left-peek-phone-frame">
                                             <div class="left-peek-side-buttons left">
                                                 <span class="side-btn volume-up"></span>
@@ -675,17 +676,17 @@
             <div v-if="!soulLinkActiveChat" class="app-content" style="display: flex; flex-direction: column; height: 100%;">
                 <!-- 角色列表 -->
                 <div v-if="soulLinkTab === 'msg'" class="wechat-list" style="flex: 1; overflow-y: auto; padding-bottom: 80px;">
-                    <div v-for="char in characters" :key="char.id" class="wechat-item" @click="startSoulLinkChat(char.id)">
+                    <div v-for="char in (characters || []).filter(Boolean)" :key="char?.id || char?.name" class="wechat-item" @click="startSoulLinkChat(char?.id)">
                         <img :src="char.avatarUrl || char.avatar || char.image || char.icon || char.coverUrl || 'https://placehold.co/100x100?text=Avatar'" class="wechat-avatar">
                         <div class="wechat-info">
                             <div class="wechat-name-row">
                                 <span class="wechat-name">{{ char.nickname || char.name }}</span>
-                                <span class="wechat-time">{{ formatLastMsgTime(char.id) }}</span>
+                                <span class="wechat-time">{{ formatLastMsgTime(char?.id) }}</span>
                             </div>
-                            <div class="wechat-last-msg">{{ getLastMessage(char.id) }}</div>
+                            <div class="wechat-last-msg">{{ getLastMessage(char?.id) }}</div>
                         </div>
-                        <div v-if="getUnrepliedCountForChar(char.id) > 0" class="unread-indicator circle-style">
-                            <span>{{ formatUnreadCount(getUnrepliedCountForChar(char.id)) }}</span>
+                        <div v-if="getUnrepliedCountForChar(char?.id) > 0" class="unread-indicator circle-style">
+                            <span>{{ formatUnreadCount(getUnrepliedCountForChar(char?.id)) }}</span>
                         </div>
                     </div>
                     <div v-if="characters.length === 0" class="wechat-empty">
@@ -1959,7 +1960,7 @@
                 <div class="art-savearchive-input-group">
                     <label class="art-savearchive-label">选择群成员</label>
                     <div style="display: flex; flex-wrap: wrap; gap: 8px; max-height: 200px; overflow-y: auto; padding: 8px; border: 2px dashed #CCCCCC; border-radius: 12px; background: #F9F9F9;">
-                        <div v-for="char in characters" :key="char.id" 
+                        <div v-for="char in (characters || []).filter(Boolean)" :key="char?.id" 
                              :class="['group-member-select', { 'selected': selectedGroupMembers.includes(char.id) }]"
                              @click="toggleGroupMember(char.id)">
                             <img :src="char.avatarUrl || 'https://placehold.co/60x60?text=No+Avatar'" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
@@ -2987,7 +2988,7 @@
                     </div>
                     <div class="role-comment-content">
                         <div class="role-list">
-                            <div v-for="char in characters" :key="char.id" class="role-item" :class="{ selected: feed.selectedRoleId === char.id }" @click="feed.selectedRoleId = char.id">
+                            <div v-for="char in (characters || []).filter(Boolean)" :key="char?.id || char?.name" class="role-item" :class="{ selected: feed.selectedRoleId === char?.id }" @click="feed.selectedRoleId = char?.id">
                                 <img :src="char.avatarUrl || 'https://placehold.co/100x100?text=?'" class="role-avatar">
                                 <span class="role-name">{{ char.nickname || char.name }}</span>
                             </div>
@@ -3009,7 +3010,7 @@
                     </div>
                     <div class="create-post-content">
                         <div class="role-list" style="margin-bottom: 16px;">
-                            <div v-for="char in characters" :key="char.id" class="role-item" :class="{ selected: feed.selectedRoleId === char.id }" @click="feed.selectedRoleId = char.id">
+                            <div v-for="char in (characters || []).filter(Boolean)" :key="char?.id || char?.name" class="role-item" :class="{ selected: feed.selectedRoleId === char?.id }" @click="feed.selectedRoleId = char?.id">
                                 <img :src="char.avatarUrl || 'https://placehold.co/60x60?text=?'" class="role-avatar">
                                 <span class="role-name">{{ char.nickname || char.name }}</span>
                             </div>
@@ -5502,64 +5503,98 @@
             <div class="music-app-shell">
                 <audio ref="musicAudioRef" preload="metadata" @timeupdate="onMusicAudioTimeUpdate" @loadedmetadata="onMusicAudioLoadedMetadata" @play="onMusicAudioPlay" @pause="onMusicAudioPause" @waiting="onMusicAudioWaiting" @canplay="onMusicAudioCanPlay" @error="onMusicAudioError" @ended="onMusicAudioEnded"></audio>
                 <div class="music-app-header">
-                    <button class="back-btn music-back-btn" @click="closeApp"><i class="fas fa-chevron-left"></i></button>
-                    <div class="music-app-title-wrap">
-                        <div class="music-app-kicker">SoulPocket Music</div>
-                        <div class="music-app-title">Playable Soundboard</div>
+                    <button class="back-btn music-back-btn music-back-btn-flat" @click="(music.activeTab === 'mine' && music.currentSubPage) ? (music.currentSubPage = null) : closeApp()" :aria-label="(music.activeTab === 'mine' && music.currentSubPage) ? '返回我的页面' : '返回桌面'" :title="(music.activeTab === 'mine' && music.currentSubPage) ? '返回我的页面' : '返回桌面'"><i class="fas fa-chevron-left"></i></button>
+                    <div class="music-app-title-wrap music-app-title-wrap-center">
+                        <div class="music-app-title music-app-title-main">SOUL MUSIC</div>
                     </div>
-                    <button class="music-header-action" @click="musicSearchOnlineSongs(music.searchText || currentTrack.title)" :disabled="music.searchLoading"><i class="fas" :class="music.searchLoading ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-down'"></i></button>
+                    <button class="music-header-action music-header-disc-btn" @click="toggleMusicPlayPause" aria-label="播放或暂停" title="播放或暂停">
+                        <span class="music-header-disc-orbit"></span>
+                        <img class="music-header-disc-cover" :class="{ 'is-spinning': music.isPlaying }" :src="currentTrack.cover || selectedCharacter.avatarUrl || 'https://placehold.co/120x120?text=Char'" :alt="currentTrack.title || '当前歌曲封面'">
+                    </button>
                 </div>
 
                 <template v-if="music.activeTab === 'home'">
                     <div class="music-page music-home-page music-home-shell">
-                        <section class="music-home-topbar">
-                            <div class="music-home-toptext">
-                                <div class="music-home-kicker">晚安，Kumo</div>
-                                <div class="music-home-subtitle">今天想和谁一起听呢？</div>
-                            </div>
-                            <button class="music-home-avatar-btn" @click="showCharacterSelector = true" aria-label="选择角色">
-                                <img :src="currentTrack.cover || selectedCharacter.avatarUrl || 'https://placehold.co/120x120?text=Char'" :alt="currentTrack.title || '正在播放歌曲封面'">
-                            </button>
-                        </section>
-
+                        
                         <section class="music-home-search-row">
                             <div class="music-home-search-inline">
                                 <i class="fas fa-search"></i>
                                 <input v-model="music.searchText" type="search" placeholder="搜索歌曲 / 心情 / 歌手 / 回忆" @keyup.enter="musicSearchOnlineSongs(music.searchText)">
-                                <button v-if="music.searchText" class="music-home-search-clear" @click="musicClearSearch" aria-label="清空搜索"><i class="fas fa-xmark"></i></button>
+                                <button v-if="music.searchText" class="music-home-search-clear" @click="musicClearSearch" aria-label="清空搜索"><i class="fas fa-circle-xmark"></i></button>
                             </div>
                         </section>
-
+                
+                        <section class="music-home-section" v-if="music.searchText.trim()">
+                            <div class="music-section-head"><span>搜索结果</span><span>{{ (music.searchResults || []).length }} 首</span></div>
+                            <div v-if="music.searchLoading" class="music-home-char-empty">正在搜索...</div>
+                            <div v-else-if="music.searchError" class="music-home-char-empty">{{ music.searchError }}</div>
+                            <div v-else-if="!(music.searchResults || []).length" class="music-home-char-empty">没有找到匹配歌曲，换个关键词试试。</div>
+                            <div v-else class="music-home-history-list">
+                                <button v-for="(song, idx) in music.searchResults.slice(0, 12)" :key="'home-search-' + (song.source || 's') + '-' + (song.id || idx)" class="music-home-history-item" @click="musicPlayFromSearch(song)">
+                                    <div class="music-home-history-cover">
+                                        <img :src="song.cover || 'https://placehold.co/96x96?text=Song'" alt="">
+                                    </div>
+                                    <div class="music-home-history-main">
+                                        <div class="music-home-history-title">{{ song.title || '未知曲目' }}</div>
+                                        <div class="music-home-history-sub">{{ song.artist || '未知歌手' }}</div>
+                                    </div>
+                                    <div class="music-home-history-action">
+                                        <div class="music-home-history-time">{{ song.duration || '--:--' }}</div>
+                                    </div>
+                                </button>
+                            </div>
+                        </section>
+                
                         <section class="music-home-section">
                             <div class="music-section-head"><span>为你推荐</span><span>更多</span></div>
                             <div class="music-home-card-row music-home-scroll-row">
-                                <button v-for="card in music.discoverCards.slice(0, 4)" :key="card.title" class="music-home-playlist-card" @click="music.activeTab = 'discover'">
-                                    <div class="music-home-playlist-cover"></div>
+                                <button v-for="(song, idx) in music.playlist.slice(0, 4)" :key="'home-reco-' + song.source + '_' + song.id + '_' + idx" class="music-home-playlist-card" @click="musicPlaySavedSong(song)">
+                                    <div class="music-home-playlist-cover" :style="{ backgroundImage: `url(${song.cover || 'https://placehold.co/320x320?text=Playlist'})` }"></div>
                                     <div class="music-home-playlist-meta">
-                                        <h3>{{ card.title }}</h3>
-                                        <p>{{ card.desc }}</p>
+                                        <h3>{{ song.title || '未命名歌单曲目' }}</h3>
+                                        <p>{{ song.artist || '未知歌手' }} · {{ song.source || 'music' }}</p>
                                     </div>
                                 </button>
+                                <div v-if="!music.playlist.length" class="music-home-char-empty">还没有歌单内容，先去发现页加载几首吧</div>
                             </div>
                         </section>
-
+                
                         <section class="music-home-section">
-                            <div class="music-section-head"><span>Char 的歌单</span><span>私人收藏</span></div>
+                            <div class="music-section-head" style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span>Char 的歌单</span>
+                                    <button class="music-home-char-feature-ai-inline" 
+                                            @click.stop="musicGenerateCharPlaylistByAI(selectedCharacter || characters[0])" 
+                                            :disabled="music.aiGeneratingCharId === String((selectedCharacter || characters[0])?.id || '')" 
+                                            aria-label="AI生成歌单" title="AI生成歌单">
+                                        <i v-if="music.aiGenerateStatusByChar?.[String((selectedCharacter || characters[0])?.id || '')] === 'loading'" class="fas fa-spinner fa-spin"></i>
+                                        <i v-else-if="music.aiGenerateStatusByChar?.[String((selectedCharacter || characters[0])?.id || '')] === 'done'" class="fas fa-check"></i>
+                                        <i v-else class="fas fa-hourglass-half"></i>
+                                    </button>
+                                </div>
+                                <span>私人收藏</span>
+                            </div>
+                            
                             <div class="music-home-char-stack">
-                                <button v-for="char in characters" :key="'home-char-playlist-' + char.id" class="music-home-char-feature" @click="showCharacterSelector = true">
+                                <div v-for="char in (characters || []).filter(Boolean)" 
+                                     :key="'home-char-playlist-' + (char?.id ?? char?.name ?? Math.random())" 
+                                     class="music-home-char-feature"
+                                     @click="musicPlayCharPlaylistWith(char)"> 
                                     <div class="music-home-char-feature-avatar">
-                                        <img :src="char.avatarUrl || 'https://placehold.co/120x120?text=Char'" :alt="char.nickname || char.name || 'Char'">
+                                        <img :src="char?.avatarUrl || 'https://placehold.co/120x120?text=Char'" :alt="char?.nickname || char?.name || 'Char'">
                                     </div>
                                     <div class="music-home-char-feature-main">
-                                        <div class="music-home-char-feature-title">{{ char.nickname || char.name || 'Char' }} 的歌单</div>
-                                        <div class="music-home-char-feature-sub">{{ (music.recents.filter(s => s.characterId === char.id).length || music.playlist.length || 48) }} 首 · Kumo 创建</div>
+                                        <div class="music-home-char-feature-title">{{ char?.nickname || char?.name || 'Char' }} 的歌单</div>
+                                        <div class="music-home-char-feature-sub">{{ (music.recents.filter(s => s.characterId === char?.id).length || music.playlist.length || 48) }} 首 · {{ char?.nickname || char?.name || 'Kumo' }} 创建</div>
                                     </div>
-                                    <button class="music-home-char-feature-play" @click.stop="music.activeTab = 'discover'" aria-label="播放歌单"><i class="fas fa-play"></i></button>
-                                </button>
+                                    <button class="music-home-char-feature-play" @click.stop="musicPlayCharPlaylistWith(char)" type="button" aria-label="播放歌单" @keydown.enter.stop.prevent="musicPlayCharPlaylistWith(char)" @keydown.space.stop.prevent="musicPlayCharPlaylistWith(char)">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                </div>
                                 <div v-if="characters.length === 0" class="music-home-char-empty">还没有可显示的角色歌单</div>
                             </div>
                         </section>
-
+                
                         <section class="music-home-section">
                             <div class="music-section-head"><span>一起听过的歌</span><span>{{ music.recents.length }} 首</span></div>
                             <div class="music-home-history-list">
@@ -5573,7 +5608,6 @@
                                     </div>
                                     <div class="music-home-history-action">
                                         <div class="music-home-history-time">{{ song.duration }}</div>
-                                        <div class="music-home-history-play"><i class="fas fa-play"></i></div>
                                     </div>
                                 </button>
                                 <div v-if="!music.recents.length" class="music-home-char-empty">今晚的收藏还在慢慢生成</div>
@@ -5584,56 +5618,98 @@
 
                 <template v-else-if="music.activeTab === 'discover'">
                     <div class="music-page">
-                        <div class="music-now-card music-discover-player">
-                            <div class="music-listen-head">
-                                <div class="music-listen-avatars">
-                                    <img :src="userAvatar || 'https://placehold.co/88x88?text=Me'" class="music-avatar-slot music-avatar-me" alt="我的头像">
-                                    <img :src="selectedCharacter.avatarUrl || 'https://placehold.co/88x88?text=Char'" class="music-avatar-slot music-avatar-char" alt="角色头像" @click.stop="showCharacterSelector = true">
+                        <div class="music-now-card music-discover-player music-discover-revamp" :style="{ '--music-cover-bg': `url(${currentTrack.cover || 'https://placehold.co/1200x1200?text=Cover'})` }">
+                            <div class="music-discover-couple-head">
+                                <img :src="selectedCharacter.avatarUrl || 'https://placehold.co/88x88?text=Char'" class="music-discover-couple-avatar" alt="角色头像" @click.stop="showCharacterSelector = true">
+                                <div class="music-discover-couple-center">
+                                    <div class="music-discover-couple-name">{{ selectedCharacter.nickname || selectedCharacter.name || 'Kumo' }} & 你</div>
+                                    <div class="music-discover-couple-count">一起听 · 第 {{ music.recents.length || 128 }} 次</div>
                                 </div>
-                                <div class="music-listen-copy">
-                                    <div>{{ music.isLoading ? '正在加载音源...' : (music.isPlaying ? '正在播放' : '已暂停') }}</div>
-                                    <span>{{ currentTrack.artist }} / {{ currentTrack.title }}</span>
-                                </div>
+                                <img :src="userAvatar || 'https://placehold.co/88x88?text=Me'" class="music-discover-couple-avatar" alt="我的头像">
                             </div>
 
-                            <div class="music-disc-stage">
-                                <div class="music-disc-glow"></div>
-                                <div class="music-disc-rings"></div>
-                                <div class="music-disc" :class="{ playing: music.isPlaying }">
-                                    <div class="music-disc-core"></div>
-                                </div>
-                            </div>
+                            <div class="music-discover-glass-panel">
+                                <transition name="music-fade" mode="out-in">
+                                    <div v-if="music.viewMode === 'default'" key="discover-default" class="music-discover-default-wrap">
+                                        <div class="music-center-content">
+                                            <div class="music-discover-song-head">
+                                                <img class="music-discover-song-cover" :src="currentTrack.cover || 'https://placehold.co/240x240?text=Cover'" alt="歌曲封面">
+                                                <div class="music-discover-song-meta">
+                                                    <h2>{{ currentTrack.title }}</h2>
+                                                    <p>{{ currentTrack.artist }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="lyrics-container music-mini-lyrics" ref="lyricsScrollBox">
+                                                <div class="music-mini-lyrics-inner" :style="{ transform: `translateY(${music.lyricTranslateY || 0}px)` }">
+                                                    <p v-for="(line, idx) in (music.lyricLines.length ? music.lyricLines : [{ text: '暂无歌词，先享受旋律。' }])" :key="idx" class="lyric-line music-mini-lyric-line" :class="{ active: idx === music.activeLyricIndex }">{{ line.text }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div v-else-if="music.viewMode === 'private'" key="discover-private" class="music-discover-private-wrap journal-canvas">
+                                        <div class="journal-block journal-top">
+                                            <div class="journal-label">许临野的手记</div>
+                                            <p>夜色落在耳机外壳上，像一层薄薄的雾。鼓点并不急，却在每一次回响里把白天的噪声慢慢拧紧，再温柔地松开。人声贴着心口掠过的时候，我忽然想起那些没有说出口的话：原来沉默也有旋律，原来想念可以被一首歌悄悄托住。窗外灯火明灭，城市仍在奔跑，而我愿意把这一分钟折起来，放进你会路过的明天。</p>
+                                            <div class="journal-stamp">2024.11.23</div>
+                                        </div>
 
-                            <div class="music-player-bottom">
-                                <div class="music-track-info">
-                                    <h2>{{ currentTrack.title }}</h2>
-                                    <p>{{ currentTrack.artist }} · {{ currentTrack.source }}</p>
-                                </div>
-                                <div v-if="music.playError" class="music-status-line error"><i class="fas fa-triangle-exclamation"></i><span>{{ music.playError }}</span></div>
-                                <div class="music-progress-shell" @click="musicSeekFromEvent" role="slider" aria-label="播放进度">
-                                    <div class="music-progress-bar">
-                                        <div class="music-progress-fill" :style="{ width: String(progressPercent || 0) + '%' }"></div>
+                                        <div class="journal-block journal-bottom">
+                                            <div class="journal-label">我的感悟</div>
+                                            <p>我在副歌里听见了某种笃定：不是喧哗的热烈，而是很慢、很轻，却始终不退场的陪伴。那些被日常磨平的情绪，在旋律的缝隙里重新长出边角。好像终于可以承认，自己也会在深夜里需要一句无声的回应。于是我把此刻写下来，不为了证明什么，只是想在未来某个疲惫的夜晚，翻到这一页时还能记得——我们曾在同一段频率里，安静而完整地存在过。</p>
+                                            <div class="journal-stamp">2024.11.23</div>
+                                        </div>
+
+                                        <div class="journal-compose-hint">
+                                            <span>记下这一刻的思绪...</span>
+                                            <div class="journal-compose-line-wrap">
+                                                <div class="journal-compose-line"></div>
+                                                <button class="journal-archive-btn" aria-label="封存日记"><i class="fas fa-box-archive"></i></button>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="music-progress-text">
-                                        <span>{{ currentTimeText }}</span>
-                                        <span>{{ durationText }}</span>
+                                    <div v-else key="discover-public" class="music-discover-public-wrap">
+                                        <div class="music-discover-public-scroll">
+                                            <div v-if="music.publicCommentsLoading" class="music-public-loading">正在抓取这首歌的评论...</div>
+                                            <div class="music-public-item" v-for="(c, i) in music.publicComments" :key="'pub-'+i">
+                                                <img class="music-public-avatar" :src="c.avatar || `https://picsum.photos/seed/music-comment-${i+1}/64/64`" alt="头像">
+                                                <div class="music-public-body">
+                                                    <div class="music-public-meta">{{ c.n }}<span v-if="c.d"> · {{ c.d }}</span></div>
+                                                    <div class="music-public-text">{{ c.t }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="music-discover-input-shell">
+                                            <input class="music-discover-input" type="text" placeholder="留下你的评论...">
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="music-volume-row">
-                                    <i class="fas fa-volume-low"></i>
-                                    <input type="range" min="0" max="1" step="0.01" :value="music.volume" @input="musicSetVolume($event.target.value)">
-                                    <span>{{ Math.round(music.volume * 100) }}%</span>
-                                </div>
-                                <div class="music-now-controls">
-                                    <button class="music-icon-btn" :class="{ active: music.shuffle }" @click="music.shuffle = !music.shuffle" aria-label="随机播放"><i class="fas fa-shuffle"></i></button>
-                                    <button class="music-icon-btn big" @click="musicPlayPrevious"><i class="fas fa-backward-step"></i></button>
-                                    <button class="music-icon-btn play" @click="toggleMusicPlayPause"><i class="fas" :class="music.isLoading ? 'fa-spinner fa-spin' : (music.isPlaying ? 'fa-pause' : 'fa-play')"></i></button>
-                                    <button class="music-icon-btn big" @click="musicPlayNext"><i class="fas fa-forward-step"></i></button>
-                                    <button class="music-icon-btn" :class="{ active: isCurrentFavorite }" @click="musicToggleFavorite(currentTrack)" aria-label="收藏"><i class="fas fa-heart"></i></button>
-                                </div>
-                                <div class="music-mode-row">
-                                    <button @click="music.showPlaylist = !music.showPlaylist"><i class="fas fa-list-ul"></i> 队列 {{ music.playlist.length }}</button>
-                                    <button @click="musicCycleRepeatMode"><i class="fas fa-repeat"></i> {{ music.repeatMode === 'one' ? '单曲循环' : music.repeatMode === 'none' ? '播完停止' : '列表循环' }}</button>
+                                </transition>
+
+                                <div class="music-discover-bottom-block">
+                                    <div class="music-progress-shell" @click="musicSeekFromEvent" role="slider" aria-label="播放进度">
+                                        <div class="music-progress-bar">
+                                            <div class="music-progress-fill" :style="{ width: String(progressPercent || 0) + '%' }"></div>
+                                            <span class="music-progress-thumb" :style="{ left: String(progressPercent || 0) + '%' }"></span>
+                                        </div>
+                                        <div class="music-progress-text">
+                                            <span>{{ currentTimeText }}</span>
+                                            <span>{{ durationText }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="music-discover-actions-row">
+                                        <button class="music-icon-btn music-discover-float-action" :class="{ active: music.viewMode === 'private' }" aria-label="乐评" @click="music.viewMode = (music.viewMode === 'private' ? 'default' : 'private')"><i class="fas fa-compact-disc"></i><span>乐评</span></button>
+                                        <button class="music-icon-btn music-discover-float-action" :class="{ active: music.viewMode === 'public' }" aria-label="评论区" @click="(music.viewMode === 'public' ? (music.viewMode = 'default') : (music.viewMode = 'public', fetchPublicCommentsForCurrentTrack()))"><i class="far fa-comment-dots"></i><span>评论区</span><em class="music-action-badge" v-if="(music.publicComments || []).length">{{ (music.publicComments || []).length > 99 ? '99+' : (music.publicComments || []).length }}</em></button>
+                                        <button class="music-icon-btn music-discover-float-action" :class="{ active: isCurrentFavorite }" @click="musicToggleFavorite(currentTrack)" aria-label="收藏"><i class="fas" :class="isCurrentFavorite ? 'fa-star' : 'far fa-star'"></i><span>{{ isCurrentFavorite ? '已收藏' : '收藏' }}</span></button>
+                                    </div>
+
+                                    <div class="music-now-controls">
+                                        <button class="music-icon-btn big" @click="musicPlayPrevious"><i class="fas fa-backward-step"></i></button>
+                                        <button class="music-icon-btn play" @click="toggleMusicPlayPause"><i class="fas" :class="music.isLoading ? 'fa-spinner fa-spin' : (music.isPlaying ? 'fa-pause' : 'fa-play')"></i></button>
+                                        <button class="music-icon-btn big" @click="musicPlayNext"><i class="fas fa-forward-step"></i></button>
+                                    </div>
+                                    <div class="music-discover-next-tip" v-if="music.playlist.length > 1">
+                                        下一首：{{ music.playlist[(music.activeIndex + 1) % music.playlist.length]?.title || '待定曲目' }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -5653,90 +5729,159 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="music-lyric-panel music-lyric-panel-large">
-                            <div v-if="music.lyricLines.length" class="music-lyric-lines">
-                                <p v-for="(line, idx) in music.lyricLines.slice(Math.max(0, activeLyricIndex - 2), activeLyricIndex + 5)" :key="line.time + '_' + idx" :class="{ active: Math.max(0, activeLyricIndex - 2) + idx === activeLyricIndex }">{{ line.text }}</p>
-                            </div>
-                            <p v-else>{{ music.lyricsText || currentTrack.lyric || '暂无歌词，先享受这一首。' }}</p>
-                        </div>
-                        <div class="music-section">
-                            <div class="music-section-head"><span>Actions</span><span>Review / Comment / Favorite</span></div>
-                            <div class="music-mini-grid">
-                                <div class="music-mini-card"><div class="music-mini-tag">乐评</div><h3>{{ currentTrack.title }}</h3><p>这首歌已经接入真实播放，可以边听边写下 char 的观点。</p></div>
-                                <div class="music-mini-card"><div class="music-mini-tag">状态</div><h3>{{ music.isPlaying ? 'Playing' : 'Paused' }}</h3><p>{{ currentTimeText }} / {{ durationText }}，收藏 {{ music.favorites.length }} 首。</p></div>
-                            </div>
-                        </div>
                     </div>
                 </template>
 
                 <template v-else-if="music.activeTab === 'wander'">
-                    <div class="music-page">
-                        <div class="music-section">
-                            <div class="music-section-head"><span>Wander</span><span>Chat / Mood</span></div>
-                            <div class="music-wander-card">
-                                <div class="music-mini-tag">Tap to switch char</div>
-                                <h3>{{ music.roamQuotes[music.roamIndex] }}</h3>
-                                <p>当前播放：{{ currentTrack.title }} / {{ currentTrack.artist }}。让角色和你一起听。</p>
-                                <button class="music-icon-btn wide" @click="music.roamIndex = (music.roamIndex + 1) % music.roamQuotes.length">换一句</button>
+                    <div class="music-page music-wander-page">
+                        <div class="music-wander-head">
+                            <div>
+                                <h3>和 {{ selectedCharacter.nickname || selectedCharacter.name || 'Kumo' }} 的漫游中...</h3>
+                                <p>深夜 · 东京</p>
                             </div>
+                            <button class="music-wander-more" aria-label="更多"><i class="fas fa-ellipsis"></i></button>
                         </div>
-                        <div class="music-section">
-                            <div class="music-section-head"><span>Queue Shortcuts</span><span>Recent / Favorite</span></div>
-                            <div class="music-mini-grid">
-                                <button v-for="song in music.recents.slice(0, 3)" :key="song.source + '_' + song.id + '-wander'" class="music-mini-card music-saved-card" @click="musicPlaySavedSong(song)"><div class="music-mini-tag">最近</div><h3>{{ song.title }}</h3><p>{{ song.artist }}</p></button>
-                                <button v-for="song in music.favorites.slice(0, 3)" :key="song.source + '_' + song.id + '-fav-wander'" class="music-mini-card music-saved-card" @click="musicPlaySavedSong(song)"><div class="music-mini-tag">收藏</div><h3>{{ song.title }}</h3><p>{{ song.artist }}</p></button>
+
+                        <div class="music-wander-chat">
+                            <div class="wander-row left">
+                                <img :src="selectedCharacter.avatarUrl || 'https://placehold.co/80x80?text=C'" class="wander-avatar" alt="char">
+                                <div class="wander-bubble">这首歌的前奏一起听了好多次了呢。</div>
+                                <span class="wander-time">23:17</span>
                             </div>
+                            <div class="wander-row right">
+                                <span class="wander-time">23:18</span>
+                                <div class="wander-bubble">嗯，每次听都有不一样的感觉。</div>
+                                <img :src="userAvatar || 'https://placehold.co/80x80?text=U'" class="wander-avatar" alt="you">
+                            </div>
+                            <div class="wander-row left">
+                                <img :src="selectedCharacter.avatarUrl || 'https://placehold.co/80x80?text=C'" class="wander-avatar" alt="char">
+                                <div class="wander-bubble">因为那时候的心情不一样吧。</div>
+                                <span class="wander-time">23:19</span>
+                            </div>
+                            <div class="wander-row right">
+                                <span class="wander-time">23:20</span>
+                                <div class="wander-bubble">可能吧。但有些瞬间，好像永远不会变。</div>
+                                <img :src="userAvatar || 'https://placehold.co/80x80?text=U'" class="wander-avatar" alt="you">
+                            </div>
+                            <div class="wander-row left">
+                                <img :src="selectedCharacter.avatarUrl || 'https://placehold.co/80x80?text=C'" class="wander-avatar" alt="char">
+                                <div class="wander-bubble">比如现在？</div>
+                                <span class="wander-time">23:20</span>
+                            </div>
+                            <div class="wander-row right">
+                                <span class="wander-time">23:20</span>
+                                <div class="wander-bubble">比如现在。</div>
+                                <img :src="userAvatar || 'https://placehold.co/80x80?text=U'" class="wander-avatar" alt="you">
+                            </div>
+                            <div class="wander-typing">{{ selectedCharacter.nickname || selectedCharacter.name || 'Kumo' }} 正在输入...</div>
+                        </div>
+
+                        <div class="music-wander-inputbar">
+                            <button class="wander-icon"><i class="far fa-face-smile"></i></button>
+                            <input type="text" :placeholder="`想对 ${selectedCharacter.nickname || selectedCharacter.name || 'Kumo'} 说点什么...`">
+                            <button class="wander-send"><i class="far fa-paper-plane"></i></button>
                         </div>
                     </div>
                 </template>
 
                 <template v-else>
-                    <div class="music-page">
-                        <div class="music-section">
-                            <div class="music-section-head"><span>Mine</span><span>Profile</span></div>
-                            <div class="music-profile-card">
-                                <div class="music-profile-row">
-                                    <div>
-                                        <h3>USER</h3>
-                                        <p>这里现在是真数据：收藏和最近播放会保存在本地。</p>
-                                    </div>
-                                    <div class="music-profile-stats">
-                                        <span>收藏 {{ music.profileStats.liked }}</span>
-                                        <span>歌单 {{ music.profileStats.created }}</span>
-                                        <span>最近 {{ music.profileStats.recent }}</span>
-                                    </div>
-                                </div>
+                    <div v-if="music.currentSubPage" class="music-page music-page-sub-host">
+                        <sub-playlist
+                            :title="music.currentSubPage === 'liked' ? '我喜欢的音乐' : (music.currentSubPage === 'shared' ? '一起听过的歌' : (music.currentSubPage === 'xuly' ? (selectedCharacter.nickname || selectedCharacter.name || '许临野') + ' 的歌单' : '治愈时刻'))"
+                            :description="music.currentSubPage === 'liked' ? '每一首心动，都在这里被重新点亮。' : (music.currentSubPage === 'shared' ? '在这个平行宇宙，我们共享了 230 段旋律。' : (music.currentSubPage === 'xuly' ? '那些他悄悄塞给你的旋律。' : '深夜的避风港。'))"
+                            :tracks="music.playlist.slice(0, 20).map((track, i) => ({ id: 'sub-' + i, title: track.title, artist: track.artist, time: track.duration, cover: track.cover }))"
+                            @back="music.currentSubPage = null"
+                            @play-all="music.playlist.length && musicPlayFromQueue(0)"
+                            @play-track="(_track, i) => musicPlayFromQueue(i)"
+                        ></sub-playlist>
+                    </div>
+                    <div v-else class="music-page music-mine-page">
+                        <section class="mine-hero">
+                            <img class="mine-hero-avatar" :src="userAvatar || 'https://picsum.photos/200/200'" alt="我的头像">
+                            <div class="mine-hero-main">
+                                <div class="mine-hero-title">我</div>
+                                <div class="mine-hero-sub">灵魂编号：9527</div>
+                                <div class="mine-hero-quote">“音乐是灵魂的另一种语言。”</div>
+
+                                <button v-if="!myVipCookie" @click="openLoginModal()" style="margin-top: 8px; font-size: 11px; padding: 4px 10px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.1); border-radius: 999px; width: fit-content; text-align: center;">绑定网易云账号</button>
+
+<button v-else @click="music.logoutNetease()" style="margin-top: 8px; font-size: 11px; padding: 4px 10px; background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 999px; width: fit-content; text-align: center;">退出网易云</button>
                             </div>
-                        </div>
-                        <div class="music-section">
-                            <div class="music-section-head"><span>我的收藏</span><span>{{ music.favorites.length }} Tracks</span></div>
-                            <div class="music-mini-grid">
-                                <button v-for="song in music.favorites" :key="song.source + '_' + song.id + '-mine-fav'" class="music-mini-card music-saved-card" @click="musicPlaySavedSong(song)"><div class="music-mini-tag">{{ song.source }}</div><h3>{{ song.title }}</h3><p>{{ song.artist }}</p></button>
-                                <div v-if="!music.favorites.length" class="music-mini-card"><div class="music-mini-tag">空</div><h3>还没有收藏</h3><p>播放页点爱心后会出现在这里。</p></div>
+                        </section>
+
+                        <section class="mine-stats-grid">
+                            <div><strong>{{ music.recents.length || 124 }}</strong><span>一起听歌（天）</span></div>
+                            <div><strong>{{ music.recents.length + 258 }}</strong><span>一起听过（首）</span></div>
+                            <div><strong>{{ music.favorites.length || 56 }}</strong><span>共同收藏（首）</span></div>
+                            <div><strong>27</strong><span>评论（条）</span></div>
+                        </section>
+
+                        <section class="mine-memory-card">
+                            <img :src="currentTrack.cover || 'https://picsum.photos/200/200'" alt="cover">
+                            <div>
+                                <h4>我们的音乐记忆</h4>
+                                <p>属于你和 {{ selectedCharacter.nickname || selectedCharacter.name || 'Kumo' }} 的时光</p>
                             </div>
-                        </div>
-                        <div class="music-section">
-                            <div class="music-section-head"><span>最近播放</span><span>{{ music.recents.length }} Tracks</span></div>
-                            <div class="music-mini-grid">
-                                <button v-for="song in music.recents" :key="song.source + '_' + song.id + '-mine-recent'" class="music-mini-card music-saved-card" @click="musicPlaySavedSong(song)"><div class="music-mini-tag">{{ song.source }}</div><h3>{{ song.title }}</h3><p>{{ song.artist }}</p></button>
-                            </div>
-                        </div>
+                            <div class="mine-memory-hours">124 小时<br><small>一起听歌的总时长</small></div>
+                        </section>
+
+                        <section class="mine-row-head"><h3>最近一起听</h3><button>更多 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></section>
+                        <section class="mine-song-row" @click="musicPlaySavedSong(currentTrack)">
+                            <img :src="currentTrack.cover || 'https://picsum.photos/200/200'" alt="cover">
+                            <div><h4>{{ currentTrack.title }}</h4><p>{{ currentTrack.artist }}</p></div>
+                            <button class="mine-song-play" aria-label="播放"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6v12l10-6z"/></svg></button>
+                        </section>
+
+                        <section class="mine-row-head"><h3>我的收藏</h3><button>创建歌单 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></section>
+                        <section class="mine-collection-grid">
+                            <button class="mine-collection-card" @click="music.currentSubPage = 'liked'"><span class="mine-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-9.5-8C.5 9.5 2.5 5 7 5c2 0 3.4 1 5 2.6C13.6 6 15 5 17 5c4.5 0 6.5 4.5 4.5 8-2.5 3.65-9.5 8-9.5 8z"/></svg></span><div><h4>我喜欢的音乐</h4><p>{{ music.favorites.length || 128 }} 首</p></div></button>
+                            <button class="mine-collection-card" @click="music.currentSubPage = 'shared'"><span class="mine-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 15V9m16 6V9M8 17V7m8 10V7"/><path d="M2 15h4m12 0h4"/></svg></span><div><h4>一起听过的歌</h4><p>{{ music.recents.length + 200 }} 首</p></div></button>
+                            <button class="mine-collection-card" @click="music.currentSubPage = 'xuly'"><span class="mine-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1L3.2 9.4l6.1-.9z"/></svg></span><div><h4>{{ selectedCharacter.nickname || selectedCharacter.name || 'Kumo' }} 的歌单</h4><p>12 个</p></div></button>
+                            <button class="mine-collection-card" @click="music.currentSubPage = 'heal'"><span class="mine-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 3a8 8 0 108 8 7 7 0 01-8-8z"/></svg></span><div><h4>治愈时刻</h4><p>68 首</p></div></button>
+                        </section>
                     </div>
                 </template>
 
                 <div class="music-bottom-nav">
                     <button class="music-bottom-tab" :class="{ active: music.activeTab === 'home' }" @click="music.activeTab = 'home'">
+                        <i class="fas fa-house"></i>
                         <span>首页</span>
                     </button>
                     <button class="music-bottom-tab" :class="{ active: music.activeTab === 'discover' }" @click="music.activeTab = 'discover'">
+                        <i class="fas fa-compass"></i>
                         <span>发现</span>
                     </button>
                     <button class="music-bottom-tab" :class="{ active: music.activeTab === 'wander' }" @click="music.activeTab = 'wander'">
+                        <i class="fas fa-moon"></i>
                         <span>漫游</span>
                     </button>
                     <button class="music-bottom-tab" :class="{ active: music.activeTab === 'mine' }" @click="music.activeTab = 'mine'">
+                        <i class="far fa-user"></i>
                         <span>我的</span>
                     </button>
+                </div>
+                <div v-if="loginState?.isModalOpen" class="phone-login-modal" @click.self="music.closeLoginModal()">
+                    <div class="phone-login-panel">
+                        <h3>网易云音乐授权</h3>
+                        <p class="phone-login-status" :class="{ 'error': (music.loginState?.statusMsg || '').includes('失败') || (music.loginState?.statusMsg || '').includes('过期') }">
+                            {{ music.loginState?.statusMsg || '请使用网易云音乐 APP 扫码' }}
+                        </p>
+                        
+                        <div style="background: #ffffff; padding: 12px; border-radius: 18px; width: 180px; height: 180px; margin: 0 auto 28px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);">
+                            <img v-if="music.loginState?.qrImg" :src="music.loginState.qrImg" style="width: 100%; height: 100%; border-radius: 8px; display: block;">
+                            <div v-else style="display: flex; align-items: center; justify-content: center; height: 100%; color: #000;">
+                                <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #2997ff;"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="phone-login-actions">
+                            <button class="btn-cancel" style="width: 100%; flex: none;" @click="music.closeLoginModal()">取消登录</button>
+                        </div>
+                
+                        <div class="login-disclaimer">
+                            <i class="fas fa-shield-alt"></i> 扫码授权仅用于同步网易云音源，不做他用
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -6153,10 +6298,7 @@
         <div v-if="showCallDiaryModal && selectedCallDiary" class="call-diary-modal" @click.self="closeCallDiaryModal">
             <div class="call-diary-panel">
                 <div class="call-diary-header">
-                    <div class="call-diary-kicker">CALL DOSSIER</div>
                     <strong>{{ callDiaryTitle }}</strong>
-                    <span class="call-diary-issue">VOL.{{ selectedCallDiary.volNo || '--' }}</span>
-                    <span class="call-diary-file">FILE-{{ selectedCallDiary.fileNo || '----' }}</span>
                     <button class="call-diary-close" @click="closeCallDiaryModal"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="call-diary-meta">
@@ -6281,15 +6423,14 @@
                             :key="char.id" 
                             @click="selectCharacter(char)"
                             style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; cursor: pointer; transition: background 0.2s;"
-                            :style="{ background: selectedCharacter.id === char.id ? '#F0F0F0' : 'transparent' }"
-                            @mouseover="e => e.currentTarget.style.background = selectedCharacter.id === char.id ? '#F0F0F0' : '#F8F8F8'"
+                            :style="{ background: (selectedCharacter?.id) === (char?.id) ? '#F0F0F0' : 'transparent' }"
+                            @mouseover="e => e.currentTarget.style.background = selectedCharacter?.id === char.id ? '#F0F0F0' : '#F8F8F8'"
                             @mouseout="e => e.currentTarget.style.background = selectedCharacter.id === char.id ? '#F0F0F0' : 'transparent'"
                         >
                             <img :src="char.avatarUrl || 'https://placehold.co/60x60?text=No+Avatar'" style="width: 50px; height: 50px; border-radius: 10px; object-fit: cover;">
                             <div style="flex: 1;">
                                 <div style="font-weight: 600; color: #000;">{{ char.nickname || char.name || '未命名角色' }}</div>
-                                <div style="font-size: 12px; color: #888;">好感度: {{ char.affection || 0 }}%</div>
-                            </div>
+                                </div>
                             <i v-if="selectedCharacter.id === char.id" class="fas fa-check" style="color: #000; font-size: 18px;"></i>
                         </div>
                     </div>

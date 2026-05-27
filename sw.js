@@ -1,47 +1,21 @@
-const CACHE_NAME = 'minimal-phone-white-v1';
+// 摆烂版 sw.js：只满足安装条件，不缓存任何文件
 
-// 需要缓存的所有本地文件
-const assetsToCache = [
-  './',
-  './index.html',
-  './style.css',
-  './main.js',
-  './script.js',
-  './mate.js',
-  './feed.js',
-  './hub.js',
-  './logo.png'
-];
-
-// 安装阶段：预缓存所有资源
+// 1. 安装时，立刻接管，不等待
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      console.log('正在预缓存资源...');
-      return cache.addAll(assetsToCache);
-    })
-  );
+  self.skipWaiting(); 
 });
 
-// 激活阶段：清理旧缓存
+// 2. 激活时，把以前存的旧缓存全部删掉！(解决你的缓存地狱)
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => {
-      return Promise.all(
-        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-      );
+      return Promise.all(keys.map(key => caches.delete(key)));
     })
   );
+  self.clients.claim();
 });
 
-// 请求拦截：先找缓存，找不到再联网
+// 3. 抓取请求时：什么都不拦，永远直接去网络上拿最新代码
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request);
-    })
-  );
+  event.respondWith(fetch(event.request));
 });
