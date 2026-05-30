@@ -1,0 +1,914 @@
+/* Console App Widget */
+.console-app-widget {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.console-header-widget {
+    width: 100%;
+    flex-shrink: 0;
+    padding: var(--spacing-lg);
+    padding-top: calc(10% + env(safe-area-inset-top));
+}
+
+.console-content-widget {
+    width: 100%;
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-lg);
+    padding-bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom));
+}
+
+.console-card-widget {
+    width: 100%;
+    flex-shrink: 0;
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    background: #FFFFFF;
+    border: 2px solid #000000;
+    box-shadow: 8px 8px 0 rgba(0,0,0,0.12);
+}
+
+/* Console 实验记录本风格 */
+.app-view.console {
+    background: transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 纸张纹理效果 */
+.app-view.console::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="none" stroke="%23000" stroke-width="0.2" opacity="0.05"/></svg>');
+    pointer-events: none;
+    z-index: 0;
+}
+
+.console .app-header {
+    background: #F5F2ED;
+    border-bottom: 2px solid #000000;
+    position: relative;
+    z-index: 1;
+}
+
+.console .app-header .app-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    position: relative;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+}
+
+.console .app-header .app-title::after {
+    content: 'STRICTLY CONFIDENTIAL';
+    position: absolute;
+    top: -15px;
+    right: -140px;
+    font-family: 'Caveat', cursive;
+    font-size: 16px;
+    font-weight: 600;
+    transform: rotate(18deg);
+    opacity: 0.75;
+    color: #E74C3C;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.1);
+}
+
+.console-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px;
+    padding-bottom: calc(32px + env(safe-area-inset-bottom));
+    position: relative;
+    z-index: 1;
+}
+
+/* 自定义滚动条 */
+.console-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.console-content::-webkit-scrollbar-track {
+    background: #F5F2ED;
+    border-left: 1px solid #000000;
+}
+
+.console-content::-webkit-scrollbar-thumb {
+    background: #000000;
+    border-radius: 0;
+    width: 6px;
+}
+
+.console .card {
+    background: #FFFFFF;
+    border: 2px solid #000000;
+    border-radius: 0;
+    padding: 32px;
+    margin-bottom: 32px;
+    position: relative;
+    box-shadow: 8px 8px 0 rgba(0,0,0,0.12);
+    transition: all 0.3s ease;
+}
+
+.console .card:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 12px 12px 0 rgba(0,0,0,0.15);
+}
+
+/* 别针固定效果 - 更逼真 */
+.console .card::before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: 24px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #E74C3C, #C0392B);
+    border: 2px solid #000000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.console .card::after {
+    content: '';
+    position: absolute;
+    top: -12px;
+    right: 24px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3498DB, #2980B9);
+    border: 2px solid #000000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.console .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: #000000;
+    position: relative;
+    display: inline-block;
+}
+
+.console .card-title::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: #000000;
+}
+
+.console-logs {
+    background: #FFFFFF;
+    border: 2px solid #000000;
+    padding: 24px;
+    margin: 24px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.8;
+    max-height: 350px;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
+}
+
+.console-log {
+    border-bottom: 1px dashed #E0E0E0;
+    padding: 12px 0;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.console-log:hover {
+    background: rgba(0,0,0,0.02);
+    padding-left: 8px;
+}
+
+.console-log:last-child {
+    border-bottom: none;
+}
+
+.console-log::before {
+    content: '>';
+    margin-right: 8px;
+    color: #666666;
+    font-weight: bold;
+}
+
+/* 极简滚动条 */
+.console-logs::-webkit-scrollbar {
+    width: 6px;
+}
+
+.console-logs::-webkit-scrollbar-track {
+    background: transparent;
+    border-left: 1px solid #000000;
+}
+
+.console-logs::-webkit-scrollbar-thumb {
+    background: #000000;
+    border-radius: 0;
+    width: 4px;
+}
+
+/* 控制台按钮样式 */
+.console .btn {
+    background: #FFFFFF;
+    border: 2px solid #000000;
+    color: #000000;
+    padding: 12px 24px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 0;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
+    margin-right: 12px;
+    margin-bottom: 12px;
+}
+
+.console .btn:hover {
+    background: #000000;
+    color: #FFFFFF;
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 rgba(0,0,0,0.15);
+}
+
+.console .btn:active {
+    transform: translate(0, 0);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+}
+
+/* Console 设置界面 - 精进美化 */
+.console-content {
+    padding: 20px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.console-card {
+    background: #FFFFFF;
+    border: 2px solid #000000;
+    border-radius: 16px;
+    box-shadow: 8px 8px 0px rgba(0,0,0,0.08);
+    overflow: visible;
+    flex-shrink: 0;
+}
+
+.console-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+    border-bottom: 2px solid #000000;
+    color: #000000;
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.console-card-header i {
+    font-size: 18px;
+    color: #000000;
+}
+
+/* Console 按钮系统 */
+.console-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    border: 2px solid #000000;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    background: #FFFFFF;
+    box-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+}
+
+.console-btn:hover:not(:disabled) {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0px rgba(0,0,0,0.15);
+}
+
+.console-btn:active:not(:disabled) {
+    transform: translate(0, 0);
+    box-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+}
+
+.console-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.console-btn-primary {
+    background: #000000;
+    color: #FFFFFF;
+}
+
+.console-btn-primary:hover:not(:disabled) {
+    background: #333333;
+}
+
+.console-btn-secondary {
+    background: #FFFFFF;
+    color: #000000;
+}
+
+.console-btn-secondary:hover:not(:disabled) {
+    background: #F5F5F5;
+}
+
+.console-btn-danger {
+    background: #FFFFFF;
+    color: #ff4444;
+    border-color: #ff4444;
+}
+
+.console-btn-danger:hover:not(:disabled) {
+    background: #ff4444;
+    color: #FFFFFF;
+}
+
+.console-btn-activate {
+    background: #FFFFFF;
+    color: #000000;
+    border-color: #000000;
+}
+
+.console-btn-activate:hover:not(:disabled) {
+    background: #000000;
+    color: #FFFFFF;
+}
+
+.console-btn-small {
+    padding: 8px 14px;
+    font-size: 12px;
+    border-radius: 8px;
+}
+
+.console-btn-full {
+    width: calc(100% - 40px);
+    margin: 0 20px 20px;
+}
+
+.console-btn-save {
+    margin-top: 8px;
+}
+
+/* Console 配置列表 */
+.console-profile-list {
+    padding: 20px 24px;
+}
+
+.console-profile-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 2px solid #E8E8E8;
+    border-radius: 12px;
+    background: #FFFFFF;
+    transition: all 0.3s ease;
+}
+
+.console-profile-item:last-child {
+    margin-bottom: 0;
+}
+
+.console-profile-item:hover {
+    border-color: #000000;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.08);
+}
+
+.console-profile-item.active {
+    border-color: #000000;
+    background: #FAFAFA;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+}
+
+.console-profile-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.console-profile-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #000000;
+    margin-bottom: 4px;
+}
+
+.console-profile-endpoint {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #888888;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.console-profile-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.console-active-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #000000;
+    color: #FFFFFF;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 20px;
+}
+
+/* Console 表单 */
+.console-form {
+    padding: 20px 24px;
+}
+
+.console-form-group {
+    margin-bottom: 20px;
+}
+
+.console-form-group:last-child {
+    margin-bottom: 0;
+}
+
+.console-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #000000;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.console-label i {
+    font-size: 14px;
+    color: #666666;
+}
+
+.console-input,
+.console-select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #000000;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    background: #FFFFFF;
+    box-shadow: 3px 3px 0px rgba(0,0,0,0.06);
+    transition: all 0.2s ease;
+}
+
+.console-input:focus,
+.console-select:focus {
+    outline: none;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+    transform: translate(-1px, -1px);
+}
+
+.console-model-select {
+    display: flex;
+    gap: 10px;
+}
+
+.console-model-select .console-select {
+    flex: 1;
+}
+
+/* Console 日志 */
+.console-logs-container {
+    padding: 20px 24px;
+    background: #FAFAFA;
+    border: 2px solid #E8E8E8;
+    border-radius: 10px;
+}
+
+.console-log-item {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #E8E8E8;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+}
+
+.console-log-item:last-child {
+    border-bottom: none;
+}
+
+.console-log-time {
+    color: #888888;
+    font-size: 12px;
+    white-space: nowrap;
+    font-family: 'SF Mono', monospace;
+}
+
+.console-log-message {
+    color: #000000;
+    flex: 1;
+    word-break: break-word;
+}
+
+.console-log-item.error .console-log-message {
+    color: #ff4444;
+}
+
+.console-log-item.success .console-log-message {
+    color: #00aa00;
+}
+
+/* Console 空状态 */
+.console-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    color: #AAAAAA;
+    gap: 12px;
+}
+
+.console-empty-state i {
+    font-size: 40px;
+    opacity: 0.4;
+}
+
+.console-empty-state span {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+}
+
+/* Console 卡片独立滚动 */
+.console-view {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.console-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+}
+
+.console-card.scrollable-card {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    background: #FFFFFF;
+    border: 2px solid #000000;
+    border-radius: 16px;
+    box-shadow: 8px 8px 0px rgba(0,0,0,0.08);
+    overflow: visible;
+    max-height: none;
+    min-height: auto;
+}
+
+.console-card-body {
+    padding: 20px 24px;
+    overflow: visible;
+}
+
+.console-card-footer {
+    padding: 16px 24px 20px;
+    border-top: 2px solid #000000;
+    flex-shrink: 0;
+}
+
+.console-card-footer .console-btn-full {
+    width: 100%;
+    margin: 0;
+}
+
+/* 自定义滚动条 */
+.console-card-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.console-card-body::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.03);
+    border-radius: 3px;
+}
+
+.console-card-body::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.15);
+    border-radius: 3px;
+}
+
+.console-card-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(0,0,0,0.25);
+}
+
+.console-backup-desc {
+    margin: 0 0 14px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: #444;
+}
+.console-backup-desc strong {
+    font-weight: 700;
+}
+.console-backup-hint {
+    margin: 0 0 12px;
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+}
+.console-backup-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* 温度滑块样式 */
+.console-slider {
+    width: 100%;
+    height: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #E8E8E8 !important;
+    border-radius: 4px !important;
+    outline: none;
+    cursor: pointer;
+    margin: 12px 0;
+    padding: 0 !important;
+    border: 0 !important;
+}
+
+.console-slider::-webkit-slider-runnable-track {
+    height: 4px !important;
+    background: #E8E8E8 !important;
+    border-radius: 4px !important;
+}
+
+.console-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    background: #000000;
+    border-radius: 50% !important;
+    cursor: pointer;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+}
+
+.console-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+}
+
+.console-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    background: #000000;
+    border-radius: 50% !important;
+    cursor: pointer;
+    border: none;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.console-slider::-moz-range-track {
+    height: 4px !important;
+    background: #E8E8E8 !important;
+    border-radius: 4px !important;
+}
+
+.temperature-value {
+    margin-left: auto;
+    padding: 4px 12px;
+    background: #000000;
+    color: #FFFFFF;
+    font-family: 'SF Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 20px;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    text-align: center;
+    display: inline-flex;
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: fit-content;
+    max-width: 140px;
+}
+
+.temperature-hint {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+    padding: 12px 16px;
+    background: #FAFAFA;
+    border: 2px solid #E8E8E8;
+    border-radius: 10px;
+}
+
+.temperature-hint .hint-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666666;
+    white-space: nowrap;
+}
+
+.temperature-hint .hint-desc {
+    flex: 1;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #888888;
+    line-height: 1.5;
+    text-align: center;
+}
+
+/* 温度拉条适配：避免温度 badge 在很窄时变成黑色长方形 */
+@media (max-width: 760px) {
+    .console-label {
+        flex-wrap: wrap;
+        row-gap: 8px;
+        align-items: flex-start;
+    }
+    .temperature-value {
+        margin-left: 0 !important;
+        max-width: 110px;
+        padding: 3px 10px;
+        font-size: 12px;
+    }
+    .console-slider {
+        height: 4px !important;
+        margin: 8px 0 0 0;
+        background: #E8E8E8 !important;
+        border-radius: 4px !important;
+        display: block;
+        padding: 0 !important;
+        border: 0 !important;
+    }
+
+    .console-slider::-webkit-slider-runnable-track {
+        height: 4px !important;
+        background: #E8E8E8 !important;
+        border-radius: 4px !important;
+    }
+
+    .console-slider::-moz-range-track {
+        height: 4px !important;
+        background: #E8E8E8 !important;
+        border-radius: 4px !important;
+    }
+}
+
+/* Console Styles */
+.console-logs {
+    max-height: 300px;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.console-log-item {
+    margin-bottom: 8px;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.console-log-item.error {
+    background: rgba(255, 107, 107, 0.1);
+    color: #ff6b6b;
+}
+
+.console-log-item.info {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+}
+
+.console-log-item.success {
+    background: rgba(7, 193, 96, 0.1);
+    color: #07c160;
+}
+
+/* Theme Styles */
+.theme-options {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.theme-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.theme-option:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px 0 rgba(31, 38, 135, 0.15);
+}
+
+.theme-preview {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.theme-light {
+    background: #ffffff;
+}
+
+.theme-dark {
+    background: #1a1a1a;
+}
+
+.theme-auto {
+    background: linear-gradient(135deg, #ffffff 0%, #1a1a1a 100%);
+}
+
+.wallpaper-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.wallpaper-item {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.wallpaper-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px 0 rgba(31, 38, 135, 0.15);
+}
+
+.wallpaper-preview {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+}
+
+.wallpaper-name {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 8px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+    color: white;
+    font-size: 12px;
+    text-align: center;
+}

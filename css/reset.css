@@ -1,0 +1,64 @@
+/* ==========================================================
+   全局重置与基础样式 (reset.css)
+   ========================================================== */
+
+/* 1. 引入外部字体 (如果有的话，必须放在最上面) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@font-face {
+    font-family: 'MateHandwritten';
+    src: url('https://s3plus.meituan.net/opapisdk/op_ticket_1_5677168484_1763505682402_qdqqd_ov02o7.ttf') format('truetype');
+    font-display: swap;
+    font-style: normal;
+    font-weight: 400;
+}
+
+/* 2. 基础盒模型重置 */
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+}
+
+/* 3. HTML & Body 基础设定 - 黑白极简主义 */
+html, body {
+    width: 100%;
+    height: 100%;
+    /* 背景和颜色建议使用变量，这样方便以后一键改主题 */
+    background: var(--ui-bg);
+    color: var(--ui-text);
+    /* 这里改成了咱们 variables.css 里统一的字体变量 */
+    font-family: var(--ui-font);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+}
+
+/* 4.手机容器（整屏沉浸：交给 body + homescreen 控制，这里不再额外限制） */
+#app {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: var(--ui-bg);
+  color: var(--ui-text);
+  overflow: hidden;
+}
+
+/* 5. 表单元素继承字体 */
+button, input, select, textarea {
+    font: inherit;
+}
+
+/* 6. 隐藏全局滚动条 (视你的需求而定，你原本代码里如果有，可以加在这里) */
+::-webkit-scrollbar {
+    display: none;
+}
+
+/* 7. 无障碍辅助：尊重用户的“减弱动态效果”设置 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,319 @@
+/* Games App Styles */
+.games-view {
+    background: transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.games-view::before {
+    content: '';
+    position: absolute;
+    top: 2%;
+    right: -6%;
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle, rgba(255, 173, 51, 0.12) 0%, rgba(255, 173, 51, 0) 68%);
+    pointer-events: none;
+}
+
+.games-view::after {
+    content: '';
+    position: absolute;
+    bottom: -8%;
+    left: -4%;
+    width: 240px;
+    height: 240px;
+    background: radial-gradient(circle, rgba(100, 149, 237, 0.12) 0%, rgba(100, 149, 237, 0) 70%);
+    pointer-events: none;
+}
+
+.games-content {
+    padding: 16px;
+    display: grid;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+}
+
+/* 进行中游戏：UNO 与其它游戏分支并列，子卡片直接参与 .games-content 的网格排版 */
+.games-ingame-stack {
+    display: contents;
+}
+
+.games-panel {
+    border: 2px solid #0f172a;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(246,248,252,0.98) 100%);
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+}
+
+.games-lobby-grid {
+    display: grid;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.games-lobby-btn {
+    text-align: left;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(241,245,249,0.92));
+}
+
+.games-lobby-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.games-badge-soon {
+    font-size: 12px;
+    opacity: 0.66;
+    font-weight: 500;
+}
+
+.games-lobby-desc {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #334155;
+    line-height: 1.55;
+}
+
+.games-rule {
+    margin: 8px 0 10px;
+    font-size: 13px;
+    color: #334155;
+    line-height: 1.6;
+}
+
+.games-meta,
+.games-status-line {
+    font-size: 12px;
+    color: #475569;
+}
+
+.games-meta {
+    margin-bottom: 12px;
+}
+
+.games-ai-picker,
+.games-mode-panel {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.games-kicker {
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+.games-ai-current {
+    font-size: 12px;
+    color: #334155;
+}
+
+.games-actions-row,
+.games-rps-panel {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.games-status-wide {
+    width: 100%;
+}
+
+.games-prompt-text {
+    font-size: 13px;
+    color: #1e293b;
+    line-height: 1.6;
+    background: rgba(15, 23, 42, 0.04);
+    border: 1px dashed rgba(15, 23, 42, 0.22);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.games-uno-hand {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.games-uno-card-btn {
+    font-size: 12px;
+    padding: 8px 10px;
+    min-width: 84px;
+    border-radius: 10px;
+}
+
+.games-ludo-board {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+    padding: 10px;
+    border: 1px solid rgba(15, 23, 42, 0.16);
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.95));
+}
+
+.games-ludo-cell {
+    min-height: 46px;
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    border-radius: 8px;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: #ffffff;
+}
+
+.games-ludo-cell-index {
+    font-size: 10px;
+    color: #64748b;
+    line-height: 1;
+}
+
+.games-ludo-cell-effect {
+    font-size: 10px;
+    color: #0f766e;
+    font-weight: 600;
+    line-height: 1.1;
+}
+
+.games-ludo-tokens {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    min-height: 16px;
+}
+
+.games-ludo-token {
+    min-width: 18px;
+    height: 14px;
+    border-radius: 10px 10px 10px 2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(15, 23, 42, 0.35);
+    font-size: 9px;
+    font-weight: 700;
+    color: #ffffff;
+    padding: 0 2px;
+}
+
+.games-ludo-token.player {
+    background: #2563eb;
+}
+
+.games-ludo-token.ai {
+    background: #f97316;
+}
+
+.games-ludo-question-card {
+    display: grid;
+    gap: 8px;
+    padding: 10px;
+    border: 1px dashed rgba(15, 23, 42, 0.25);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.games-back-wrap {
+    margin-top: 14px;
+}
+
+.games-chat-card {
+    margin-top: 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    background: rgba(255,255,255,0.92);
+}
+
+.games-chat-list {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 8px;
+    display: grid;
+    gap: 8px;
+    padding-right: 4px;
+}
+
+.games-chat-empty {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.games-chat-msg {
+    font-size: 12px;
+    line-height: 1.55;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.06);
+    color: #0f172a;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+}
+
+.games-chat-msg.from-player {
+    background: rgba(59, 130, 246, 0.14);
+    border-color: rgba(59, 130, 246, 0.24);
+}
+
+.games-chat-msg.from-system {
+    background: rgba(148, 163, 184, 0.18);
+    border-color: rgba(148, 163, 184, 0.28);
+    color: #334155;
+}
+
+.games-chat-input-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.games-chat-input-row .lock-wallpaper-input {
+    flex: 1;
+}
+
+.games-send-btn {
+    min-width: 72px;
+}
+
+/* UNO 独立游戏卡：写在 .card 之后，三类名提高优先级，避免被 .card 的黑边框盖住 */
+.card.games-panel.games-panel-uno-dedicated {
+    border: 2px solid #16a34a;
+    border-radius: 18px;
+    background: linear-gradient(165deg, #f8fafc 0%, #ecfdf5 40%, #f8fafc 100%);
+    box-shadow: 0 10px 32px rgba(22, 163, 74, 0.14);
+}
+
+.card.games-panel.games-panel-uno-dedicated > .card-title {
+    color: #14532d;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+}
+
+.card.games-panel.games-panel-uno-dedicated > .games-mode-panel {
+    margin-bottom: 0;
+}
+
+/* UNO 内层可滚动，减轻与下方聊天区抢高度、溢出重叠 */
+.card.games-panel.games-panel-uno-dedicated .games-mode-panel-uno {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

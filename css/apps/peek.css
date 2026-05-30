@@ -1,0 +1,442 @@
+/* =========================================================================
+   Peek App - 现代拟态玻璃风 (Modern Glassmorphism UI)
+   ========================================================================= */
+
+   .peek-app {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 10px 0;
+    background: #f4f5f9;
+    min-height: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", sans-serif;
+}
+.peek-app.dark {
+    background: #0f1014;
+    color: #f2f2f4;
+}
+
+/* 顶部控制栏优化 */
+.peek-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.peek-icon-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+}
+.peek-app.dark .peek-icon-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #f2f2f4;
+}
+.peek-icon-btn:active { transform: scale(0.92); }
+
+.peek-title-wrap h2 { margin: 0; font-size: 16px; letter-spacing: 0.04em; font-weight: 700; }
+.peek-title-wrap p { margin: 2px 0 0 0; font-size: 11px; opacity: 0.6; }
+.peek-character-picker { display: flex; }
+.peek-select {
+    width: 100%;
+    height: 38px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.8);
+    padding: 0 10px;
+    font-weight: 500;
+}
+.peek-app.dark .peek-select {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #f2f2f4;
+}
+.peek-empty { padding: 24px 12px; text-align: center; font-size: 13px; opacity: 0.5; }
+
+/* 手机外框 - 增强钛金属质感与立体感 */
+.peek-phone-wrapper {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 0;
+}
+.peek-phone-frame {
+    width: min(300px, 85vw);
+    aspect-ratio: 9 / 19.5;
+    max-height: calc(100vh - 160px);
+    background: #000;
+    border-radius: 44px;
+    padding: 10px;
+    box-shadow: 
+        0 0 0 2px #4a4a4c, 
+        0 0 0 7px #1c1c1e, 
+        0 24px 60px rgba(0, 0, 0, 0.5), 
+        inset 0 0 0 2px rgba(255, 255, 255, 0.15);
+    position: relative;
+}
+
+/* 灵动岛 (Dynamic Island) 替代生硬的刘海 */
+.peek-phone-notch {
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 95px;
+    height: 28px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 20;
+    box-shadow: inset 0 0 4px rgba(255,255,255,0.2);
+}
+/* 摄像头小圆点修饰 */
+.peek-phone-notch::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #111;
+    box-shadow: inset -2px -2px 4px rgba(255,255,255,0.1), 0 0 2px rgba(60, 100, 255, 0.3);
+}
+
+.peek-phone-screen {
+    width: 100%;
+    height: 100%;
+    border-radius: 34px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    /* 默认浅色壁纸 */
+    background: radial-gradient(circle at 10% 0%, #e0e7ff 0%, #f3e8ff 50%, #ffe4e6 100%);
+}
+.peek-phone-screen.dark {
+    /* 深色高级磨砂壁纸 */
+    background: radial-gradient(circle at 0% 0%, #2a2a35 0%, #101217 60%, #000000 100%);
+}
+
+/* 状态栏 */
+.peek-statusbar {
+    height: 44px;
+    padding: 12px 24px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1c1c1e;
+    z-index: 10;
+    letter-spacing: 0.03em;
+}
+.peek-phone-screen.dark .peek-statusbar { color: #ffffff; }
+.peek-status-right { display: flex; align-items: center; gap: 6px; font-size: 11px; opacity: 0.9; }
+
+/* 主屏内容区 */
+.peek-home-content {
+    flex: 1;
+    min-height: 0;
+    padding: 16px 16px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* 问候语区域 */
+.peek-home-headline {
+    padding: 4px 4px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.peek-widget-greeting {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1c1c1e;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 10px rgba(255,255,255,0.5);
+}
+.peek-phone-screen.dark .peek-widget-greeting {
+    color: #ffffff;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+.peek-home-headline .peek-widget-date {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(0,0,0,0.5);
+    text-shadow: 0 1px 4px rgba(255,255,255,0.3);
+}
+.peek-phone-screen.dark .peek-home-headline .peek-widget-date {
+    color: rgba(255,255,255,0.6);
+    text-shadow: none;
+}
+
+/* 桌面小组件 - 毛玻璃磨砂效果 */
+.peek-widget-board {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: minmax(100px, auto);
+    gap: 12px;
+    flex-shrink: 0;
+}
+.peek-widget-card {
+    border-radius: 22px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05), inset 0 1px 2px rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: #1c1c1e;
+    transition: transform 0.2s ease;
+}
+.peek-widget-card:active { transform: scale(0.96); }
+
+.peek-phone-screen.dark .peek-widget-card {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+.peek-widget-card-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.5);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.peek-phone-screen.dark .peek-widget-card-title { color: rgba(255, 255, 255, 0.5); }
+.peek-widget-weather-value { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+.peek-widget-card-sub { margin-top: 6px; font-size: 11px; color: rgba(0,0,0,0.4); font-weight: 500; }
+.peek-phone-screen.dark .peek-widget-card-sub { color: rgba(255,255,255,0.4); }
+
+/* 应用网格与图标 - 现代高质感风格 */
+.peek-home-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px 12px;
+    flex: 1;
+    min-height: 0;
+    align-content: start;
+    padding: 12px 4px 0;
+}
+.peek-app-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 500;
+    color: #1c1c1e;
+    text-shadow: 0 1px 4px rgba(255,255,255,0.5);
+}
+.peek-phone-screen.dark .peek-app-icon {
+    color: #ffffff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+/* 核心图标优化：不再是死板的单色块，而是半透明晶体感 */
+.peek-app-icon i {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    font-size: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.3) 100%);
+    color: #1c1c1e;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06), inset 0 2px 4px rgba(255,255,255,0.6);
+    backdrop-filter: blur(12px);
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+.peek-phone-screen.dark .peek-app-icon i {
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.02) 100%);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.2);
+}
+.peek-app-icon:active i { transform: scale(0.9); filter: brightness(0.9); }
+.peek-app-label { opacity: 0.9; }
+
+/* 底部应用栏 (Dock) - 悬浮磨砂质感 */
+.peek-dock {
+    padding: 14px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-radius: 30px;
+    margin: 0 14px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+.peek-phone-screen.dark .peek-dock {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+.peek-dock-item {
+    width: 46px;
+    height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    color: #1c1c1e;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+.peek-phone-screen.dark .peek-dock-item {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.peek-dock-item i { font-size: 20px; }
+.peek-dock-item:active { transform: scale(0.85); }
+.peek-dock-label { display: none; }
+
+/* 底部 Home 指示条 */
+.peek-home-indicator {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 130px;
+    height: 5px;
+    background: rgba(0,0,0,0.8);
+    border-radius: 3px;
+}
+.peek-phone-screen.dark .peek-home-indicator { background: rgba(255,255,255,0.8); }
+
+/* 红点角标 (Badge) */
+.peek-app-badge {
+    position: absolute;
+    top: -4px;
+    right: 48%;
+    transform: translateX(50%);
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    background: #ff3b30;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(255, 59, 48, 0.4);
+    z-index: 2;
+}
+.peek-phone-screen.dark .peek-app-badge { border-color: #1c1c1e; }
+
+/* 应用内页设计美化 */
+.peek-app-nav {
+    height: 50px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+.peek-phone-screen.dark .peek-app-nav {
+    background: rgba(20, 20, 25, 0.85);
+    border-bottom-color: rgba(255,255,255,0.08);
+}
+.peek-app-back {
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #007aff;
+    font-weight: 500;
+}
+.peek-app-title { font-size: 17px; font-weight: 700; letter-spacing: 0.02em; }
+.peek-app-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 16px;
+    background: #f2f2f7;
+}
+.peek-phone-screen.dark .peek-app-body { background: #000; }
+
+/* 锁屏界面 (保留逻辑，进行质感升级) */
+.peek-lockscreen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 30px 20px 20px;
+}
+.peek-lock-time-wrap {
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.peek-lockscreen .lock-time { color: #fff; text-shadow: 0 2px 20px rgba(0,0,0,0.5); }
+.peek-lockscreen .lock-clock { font-size: 64px; font-weight: 700; letter-spacing: -2px; line-height: 1; }
+.peek-lockscreen .lock-date { margin-top: 8px; font-size: 16px; font-weight: 500; }
+.peek-passcode-panel {
+    z-index: 2;
+    width: 100%;
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+.peek-passcode-dots { display: flex; gap: 12px; margin-bottom: 10px; }
+.peek-passcode-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid #fff; }
+.peek-passcode-dot.active { background: #fff; }
+.peek-passcode-keypad { width: 80%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.peek-passcode-key {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 24px;
+    font-weight: 400;
+    backdrop-filter: blur(10px);
+}
+.peek-passcode-key:active { background: rgba(255, 255, 255, 0.4); }
+
+/* 其他辅助组件隐藏或调整 */
+.peek-widget-photo-row { display: flex; gap: 8px; }
+.peek-widget-photo { flex: 1; aspect-ratio: 1; border-radius: 12px; overflow: hidden; }
+.peek-widget-photo img { width: 100%; height: 100%; object-fit: cover; }
+.peek-list { display: flex; flex-direction: column; gap: 12px; }
+.peek-list-item {
+    background: #fff;
+    padding: 12px 16px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+.peek-phone-screen.dark .peek-list-item { background: #1c1c1e; color: #fff; }

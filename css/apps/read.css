@@ -1,0 +1,325 @@
+/* Read App · grey bookshelf theme */
+.read-app {
+    --read-bg: #f3f3f6;
+    --read-text: #1f2933;
+    --read-accent: #111827;
+    --read-muted: #6b7280;
+    --read-card: rgba(255,255,255,0.86);
+    --read-shadow: 0 10px 30px rgba(15,23,42,0.16);
+    display: flex;
+    flex-direction: column;
+    background-color: var(--read-bg);
+    /* 背景图由 read.readAppBackgroundStyle 绑定 */
+    color: var(--read-text);
+}
+.read-app .read-header {
+    background: rgba(255,255,255,0.86);
+    border-bottom: 1px solid rgba(45,47,54,0.12);
+    backdrop-filter: blur(8px);
+    display: flex !important;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px 10px 8px;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    border-radius: 0;
+}
+.read-app .read-header .back-btn.read-nav-btn {
+    margin-top: -6px;
+}
+.read-app .read-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+}
+.read-app .read-header-row-bottom {
+    justify-content: flex-start;
+    padding-left: 52px;
+    padding-right: 8px;
+    box-sizing: border-box;
+}
+.read-app .read-header-row-bottom .read-top-tabs {
+    max-width: 100%;
+}
+.read-app .read-header-center {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6px;
+    overflow: hidden;
+}
+.read-app .app-title {
+    font-family: Inter, sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+}
+.read-app .read-subtitle {
+    font-size: 11px;
+    color: rgba(31,41,51,0.58);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.read-app .read-top-tabs {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-start;
+    background: rgba(255,255,255,0.72);
+    border: 1px solid rgba(15,23,42,0.08);
+    border-radius: 999px;
+    padding: 4px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.85);
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+    flex: 0 0 auto;
+}
+.read-app .read-top-tabs::-webkit-scrollbar {
+    display: none;
+}
+.read-app .read-top-tab {
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--read-muted);
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .15s ease;
+    flex: 0 0 auto;
+}
+.read-app .read-top-tab i {
+    font-size: 10px;
+    opacity: 0.8;
+}
+.read-app .read-top-tab span {
+    white-space: nowrap;
+}
+.read-app .read-top-tab.active {
+    background: #fff;
+    color: var(--read-accent);
+    border-color: rgba(15,23,42,0.2);
+    box-shadow: 0 3px 8px rgba(15,23,42,0.12);
+}
+.read-app .read-top-tab:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+.read-app .read-header-right {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: flex-end;
+    flex-shrink: 0;
+    min-width: 102px;
+}
+.read-app .read-nav-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px !important;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(15,23,42,0.14) !important;
+    background: rgba(255,255,255,0.9) !important;
+}
+.read-app .read-api-status {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    border: 1px solid rgba(15,23,42,0.14);
+    background: rgba(255,255,255,0.9);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.read-app .read-api-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.read-app .read-api-dot.ok { background: #22c55e; }
+.read-app .read-api-dot.bad { background: #ef4444; }
+
+@media (max-width: 900px) {
+    .read-app .read-subtitle {
+        display: none;
+    }
+}
+
+@media (max-width: 560px) {
+    .read-app .read-header-right {
+        min-width: auto;
+    }
+}
+.read-app .read-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    background: transparent;
+    max-width: none;
+    margin: 0;
+}
+.read-app .read-view { display: flex; flex-direction: column; gap: 12px; }
+.read-app .read-card {
+    padding: 12px;
+    border-radius: 16px !important;
+    border: 1px solid rgba(45,47,54,0.1) !important;
+    background: var(--read-card);
+    box-shadow: var(--read-shadow) !important;
+    backdrop-filter: blur(16px);
+}
+.read-app .read-search-row { display: flex; gap: 10px; align-items: center; }
+.read-app .read-input,
+.read-app input,
+.read-app textarea,
+.read-app select {
+    background: #fff !important;
+    border: 1px solid rgba(45,47,54,0.16) !important;
+    border-radius: 12px !important;
+    outline: none;
+}
+.read-app .read-input { flex: 1; padding: 10px; }
+.read-app .btn-small {
+    border-radius: 8px !important;
+    border: 1px solid rgba(45,47,54,0.2);
+    background: #fff;
+    color: var(--read-text);
+}
+.read-app .btn-small.primary {
+    background: var(--read-accent);
+    border-color: var(--read-accent);
+    color: #fff;
+}
+.read-app .read-chip-wrap {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    max-height: 132px;
+    overflow-y: auto;
+}
+.read-app .read-works-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 12px;
+}
+.read-app .read-work-card {
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+.read-app .read-work-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.08) !important;
+}
+.read-app .read-title {
+    font-family: Inter, sans-serif;
+    font-weight: 700;
+    color: var(--read-text);
+}
+.read-app .read-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.read-app .read-tag {
+    background: #fff;
+    border: 1px solid rgba(45,47,54,0.12);
+    border-radius: 999px;
+    font-size: 12px;
+    padding: 3px 8px;
+}
+.read-app .read-tag.warning {
+    color: #b45309;
+    border-color: rgba(180,83,9,0.35);
+    background: rgba(251,191,36,0.14);
+}
+.read-app .read-chapter-item {
+    padding: 10px;
+    border-radius: 12px !important;
+    background: rgba(255,255,255,0.92) !important;
+    border: 1px solid rgba(15,23,42,0.06) !important;
+}
+.read-app .read-reader-body-wrap {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 8px 12px;
+    background: transparent;
+}
+.read-app .read-body {
+    font-family: 'Long Cang', 'ZCOOL XiaoWei', 'KaiTi', 'STKaiti', 'FangSong', 'SimSun', serif;
+    white-space: pre-wrap;
+    line-height: 1.85;
+    font-size: 17px;
+    letter-spacing: 0.03em;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 4px 18px;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    color: var(--read-text);
+}
+.read-app .read-notes {
+    background: rgba(74,78,105,0.1) !important;
+    border: 1px solid rgba(74,78,105,0.2);
+}
+.read-app .read-reader-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+.read-app .read-writer-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.read-app .back-btn {
+    background: #fff !important;
+    border-color: rgba(45,47,54,0.2) !important;
+}
+
+@media (min-width: 768px) {
+    .read-app .read-works-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (min-width: 1024px) {
+    .read-app .read-works-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+@media (max-width: 767px) {
+    .read-app .read-header-center {
+        align-items: flex-start;
+        margin-left: 6px;
+    }
+    .read-app .read-top-tabs {
+        overflow-x: auto;
+        width: auto;
+        max-width: 100%;
+        padding-bottom: 2px;
+    }
+    .read-app .read-body {
+        font-size: 16px;
+        line-height: 1.75;
+    }
+}
+.read-placeholder {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    color: rgba(0,0,0,0.5);
+}
+.read-placeholder i { font-size: 48px; }
+.read-placeholder p { margin: 0; font-size: 14px; }

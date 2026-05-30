@@ -1,0 +1,326 @@
+/* ------------------------------------------------------------------
+   Ember (Threads-like) — match screenshots (clean, thin dividers, tabbar)
+   ------------------------------------------------------------------ */
+   .ember-app {
+    background: #ffffff;
+    color: #0b0b0c;
+}
+
+/* topbar */
+.ember-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px 8px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.ember-topbar-btn {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 12px;
+    color: #0b0b0c;
+}
+.ember-topbar-btn svg {
+    width: 22px;
+    height: 22px;
+}
+.ember-topbar-logo {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #0b0b0c;
+}
+.ember-topbar-logo svg {
+    width: 26px;
+    height: 26px;
+}
+
+/* feed */
+.ember-content {
+    padding: 0;
+}
+.ember-has-tabbar {
+    padding-bottom: 74px;
+}
+.ember-feed {
+    padding-top: 6px;
+}
+.ember-empty {
+    padding: 18px 16px;
+    color: rgba(11, 11, 12, 0.72);
+}
+.ember-empty-title {
+    font-weight: 800;
+    margin-bottom: 6px;
+    color: rgba(11, 11, 12, 0.92);
+}
+.ember-empty-sub {
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
+.ember-post {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.ember-left {
+    width: 44px;
+    flex: 0 0 44px;
+}
+.ember-avatar-wrap {
+    position: relative;
+    width: 44px;
+    height: 44px;
+}
+.ember-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    object-fit: cover;
+    display: block;
+}
+.ember-avatar-plus {
+    position: absolute;
+    left: -4px;
+    bottom: -4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    background: #0b0b0c;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffffff;
+}
+.ember-avatar-plus svg {
+    width: 14px;
+    height: 14px;
+}
+
+.ember-main {
+    flex: 1;
+    min-width: 0;
+}
+.ember-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+.ember-head-left {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    min-width: 0;
+}
+.ember-username {
+    font-weight: 800;
+    font-size: 0.98rem;
+    color: #0b0b0c;
+    max-width: 64vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.ember-time {
+    font-size: 0.86rem;
+    color: rgba(11, 11, 12, 0.45);
+    white-space: nowrap;
+}
+.ember-more {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 10px;
+    color: rgba(11, 11, 12, 0.55);
+}
+.ember-more svg {
+    width: 20px;
+    height: 20px;
+}
+.ember-text {
+    margin-top: 6px;
+    font-size: 0.98rem;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    color: rgba(11, 11, 12, 0.92);
+}
+
+.ember-actions {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+.ember-action {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 6px 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(11, 11, 12, 0.88);
+    font-family: inherit;
+}
+.ember-action svg {
+    width: 20px;
+    height: 20px;
+}
+.ember-action.active {
+    color: #e11d48;
+}
+.ember-action.danger {
+    color: rgba(220, 38, 38, 0.92);
+}
+.ember-count {
+    font-size: 0.9rem;
+    color: rgba(11, 11, 12, 0.65);
+}
+
+.ember-replies {
+    margin-top: 10px;
+    display: grid;
+    gap: 10px;
+}
+.ember-reply {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+.ember-reply-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    object-fit: cover;
+    flex: 0 0 22px;
+}
+.ember-reply-head {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+}
+.ember-reply-author {
+    font-weight: 750;
+    font-size: 0.92rem;
+}
+.ember-reply-time {
+    color: rgba(11, 11, 12, 0.45);
+    font-size: 0.82rem;
+}
+.ember-reply-text {
+    margin-top: 2px;
+    font-size: 0.92rem;
+    color: rgba(11, 11, 12, 0.9);
+    line-height: 1.35;
+    white-space: pre-wrap;
+}
+.ember-composer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 14px;
+    z-index: 999;
+}
+.ember-composer-panel {
+    width: 100%;
+    max-width: 520px;
+    background: #fff;
+    border-radius: 18px;
+    border: 1px solid rgba(2, 6, 23, 0.10);
+    padding: 12px;
+}
+.ember-composer-title {
+    font-weight: 750;
+    margin-bottom: 10px;
+}
+.ember-composer-input {
+    width: 100%;
+    min-height: 120px;
+    resize: none;
+    border-radius: 14px;
+    border: 1px solid rgba(2, 6, 23, 0.12);
+    padding: 10px 12px;
+    font-family: inherit;
+    outline: none;
+}
+.ember-composer-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 10px;
+}
+.ember-btn {
+    border-radius: 999px;
+    border: 1px solid rgba(2, 6, 23, 0.12);
+    background: rgba(255, 255, 255, 0.92);
+    padding: 8px 14px;
+    cursor: pointer;
+    font-family: inherit;
+}
+.ember-btn-primary {
+    background: #0f172a;
+    border-color: #0f172a;
+    color: #fff;
+}
+
+/* tabbar */
+.ember-tabbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    height: 64px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: center;
+    padding: 0 6px;
+}
+.ember-tab {
+    height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 14px;
+    color: rgba(11, 11, 12, 0.82);
+}
+.ember-tab svg {
+    width: 24px;
+    height: 24px;
+}
+.ember-tab.is-active {
+    color: #0b0b0c;
+}
+.ember-tab-plus svg {
+    width: 28px;
+    height: 28px;
+}

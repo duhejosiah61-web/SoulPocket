@@ -1,0 +1,397 @@
+/*
+  Feed page — 1:1 visual tuning for the screenshot
+  Goal: darker atmospheric background, softer stacked paper card,
+  tighter header spacing, and more iOS-like floating chrome.
+*/
+
+:root {
+  --feed-bg-top: #0d1020;
+  --feed-bg-bottom: #06080f;
+  --feed-glow: rgba(255, 255, 255, 0.18);
+  --feed-card: rgba(246, 240, 232, 0.985);
+  --feed-card-2: rgba(255, 250, 245, 0.92);
+  --feed-border: rgba(255, 255, 255, 0.30);
+  --feed-text: #1e1d1c;
+  --feed-muted: rgba(43, 39, 35, 0.56);
+  --feed-shadow: 0 30px 85px rgba(0, 0, 0, 0.52);
+}
+
+.feed-app {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.09), transparent 28%),
+    radial-gradient(circle at 50% 14%, rgba(255, 255, 255, 0.05), transparent 18%),
+    linear-gradient(180deg, var(--feed-bg-top), var(--feed-bg-bottom));
+}
+
+.feed-app::before,
+.feed-app::after {
+  content: '';
+  position: absolute;
+  inset: auto;
+  border-radius: 999px;
+  filter: blur(18px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.feed-app::before {
+  width: 220px;
+  height: 220px;
+  left: -40px;
+  top: -36px;
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.feed-app::after {
+  width: 300px;
+  height: 300px;
+  right: -120px;
+  top: 50px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.feed-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  color: var(--feed-text);
+}
+
+.feed-screen-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 12%, rgba(255, 255, 255, 0.12), transparent 26%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.24) 44%, rgba(0, 0, 0, 0.56));
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+  pointer-events: none;
+}
+
+.feed-topbar {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  padding: 14px 16px 8px;
+}
+
+.feed-topbar-btn {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.10);
+  color: rgba(255, 255, 255, 0.92);
+  display: grid;
+  place-items: center;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 8px 20px rgba(0, 0, 0, 0.14);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.feed-avatar-btn { padding: 0; overflow: hidden; }
+.feed-avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
+
+.feed-topbar-center { text-align: center; }
+.feed-topbar-title {
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.24em;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.88);
+}
+.feed-topbar-line {
+  width: 14px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.74);
+  margin: 8px auto 0;
+}
+
+.feed-stage {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 14px 104px;
+}
+
+.feed-card-stack {
+  position: relative;
+  width: min(92vw, 412px);
+  height: min(73vh, 642px);
+}
+
+.feed-stack-layer,
+.feed-stack-layer-back-2 {
+  position: absolute;
+  inset: 18px 8px 0 8px;
+  border-radius: 32px;
+  box-shadow: var(--feed-shadow);
+}
+
+.feed-stack-layer {
+  transform: rotate(-6deg) translateY(2px);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.feed-stack-layer-back-2 {
+  inset: 32px 18px -8px 18px;
+  transform: rotate(-11deg);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.feed-card-shell,
+.feed-loading-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 34px;
+  background:
+    linear-gradient(180deg, rgba(255, 252, 248, 0.98), rgba(247, 240, 231, 0.94));
+  border: 1px solid var(--feed-border);
+  box-shadow: var(--feed-shadow);
+  overflow: hidden;
+}
+
+.feed-card-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.28), transparent 22%),
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,.36), transparent 30%);
+  pointer-events: none;
+}
+
+.feed-card-rail {
+  position: relative;
+  width: 100%;
+  height: calc(100% - 68px);
+  padding: 16px 17px 10px;
+}
+
+.feed-card {
+  display: none;
+  height: 100%;
+  color: var(--feed-text);
+}
+.feed-card.active { display: flex; flex-direction: column; }
+
+.feed-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.feed-user { display: flex; align-items: center; gap: 12px; }
+.feed-user-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 8px 18px rgba(0,0,0,.18);
+}
+.feed-user-meta { display:flex; flex-direction:column; gap:3px; }
+.feed-user-name { font-size: 14px; font-weight: 700; letter-spacing: .1px; }
+.feed-user-time { font-size: 11px; color: var(--feed-muted); }
+.feed-more-btn { border:0; background:transparent; color: rgba(32, 29, 28, 0.72); font-size: 18px; padding: 4px 6px; }
+
+.feed-copy {
+  margin-top: 14px;
+  font-size: 15px;
+  line-height: 1.78;
+  color: rgba(30, 27, 26, 0.92);
+  letter-spacing: 0.1px;
+  white-space: pre-wrap;
+}
+
+.feed-media { margin-top: 13px; }
+.feed-media-frame {
+  border-radius: 24px;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  background: #ddd;
+  box-shadow: 0 16px 28px rgba(0,0,0,.16);
+}
+.feed-media-frame img,
+.feed-media-frame .feed-mock-image,
+.feed-media-frame .feed-text-image { width: 100%; height: 100%; display:grid; place-items:center; }
+.feed-media-frame img { object-fit: cover; }
+.feed-mock-image,
+.feed-text-image { color: rgba(0, 0, 0, 0.74); font-size: 14px; padding: 18px; text-align: center; }
+
+.feed-actions {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-right: 2px;
+}
+.feed-action-btn { border:0; background:transparent; color: rgba(29, 26, 25, 0.70); font-size: 21px; padding: 4px; }
+
+.feed-liked-row {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(54, 50, 48, 0.62);
+  font-size: 12px;
+}
+.feed-liked-row img {
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: -5px;
+  border: 2px solid rgba(255, 252, 248, 0.98);
+}
+
+.feed-comments-preview { margin-top: 10px; display: grid; gap: 7px; }
+.feed-comment-item { display:flex; flex-wrap:wrap; gap:6px; font-size: 12px; color: rgba(36, 32, 30, 0.72); }
+.feed-comment-author { font-weight:700; color: rgba(22, 20, 19, 0.92); }
+
+.feed-comment-input { margin-top: 11px; display:flex; gap:10px; }
+.feed-comment-input input {
+  flex:1;
+  height:42px;
+  border:0;
+  border-radius:999px;
+  background: rgba(0,0,0,.055);
+  padding:0 16px;
+  outline:none;
+}
+.feed-comment-input button {
+  border:0;
+  border-radius:999px;
+  background:#111827;
+  color:#fff;
+  padding:0 16px;
+}
+
+.feed-action-menu {
+  position: absolute;
+  right: 16px;
+  top: 62px;
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 16px;
+  background: rgba(20, 24, 40, 0.95);
+  color: #fff;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.26);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.feed-action-menu button {
+  border:0;
+  border-radius:12px;
+  background: rgba(255,255,255,.08);
+  color:#fff;
+  min-width:88px;
+  height:34px;
+}
+
+.feed-card-foot {
+  margin-top: auto;
+  padding-top: 12px;
+  text-align: center;
+  font-size: 12px;
+  color: rgba(45, 41, 39, 0.60);
+}
+
+.feed-carousel-nav {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 0 16px 10px;
+}
+.feed-nav-arrow {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(17, 21, 33, 0.72);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 10px 22px rgba(0,0,0,.20);
+}
+.feed-dots { display:flex; gap:8px; align-items:center; }
+.feed-dot { width:7px; height:7px; border-radius:999px; background: rgba(255,255,255,.42); }
+.feed-dot.active { width: 18px; background: rgba(255,255,255,.94); }
+
+.feed-fab {
+  position: absolute;
+  left: 50%;
+  bottom: 84px;
+  transform: translateX(-50%);
+  z-index: 3;
+  width: 58px;
+  height: 58px;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffffff, #ece4db);
+  color: #111;
+  font-size: 22px;
+  box-shadow: 0 18px 36px rgba(0,0,0,.28);
+}
+
+.feed-bottom-nav {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 18px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 34px;
+}
+.feed-bottom-icon {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  background: transparent;
+  color: rgba(255,255,255,.72);
+  font-size: 20px;
+}
+.feed-bottom-icon.active { color: #fff; }
+
+.feed-loading-card { display:grid; place-items:center; gap:14px; }
+.feed-loading-spinner {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid rgba(17, 24, 39, 0.14);
+  border-top-color: rgba(17, 24, 39, 0.78);
+  animation: feedSpin 1s linear infinite;
+}
+.feed-loading-text { font-size: 14px; color: rgba(17, 24, 39, 0.62); }
+
+@keyframes feedSpin { to { transform: rotate(360deg); } }
+
+@media (max-width: 480px) {
+  .feed-stage { padding: 12px 10px 100px; }
+  .feed-card-stack { width: 100%; height: min(75vh, 626px); }
+  .feed-topbar { padding-left: 12px; padding-right: 12px; }
+  .feed-card-rail { padding: 15px 15px 9px; }
+}

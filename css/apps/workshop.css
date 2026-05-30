@@ -1,0 +1,1451 @@
+/* Workshop App Widget */
+.workshop-app-widget {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.workshop-header-widget {
+    width: 100%;
+    flex-shrink: 0;
+    padding: var(--spacing-lg);
+    padding-top: calc(10% + env(safe-area-inset-top));
+}
+
+.workshop-content-widget {
+    width: 100%;
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-lg);
+    padding-bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom));
+}
+
+.workshop-card-widget {
+    width: 100%;
+    flex-shrink: 0;
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    background: #FFFFFF;
+    border: 2px solid #000000;
+    border-radius: 16px;
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.08);
+    overflow: visible;
+}
+
+.workshop-content {
+    flex: 1 1 auto;
+    padding: 20px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.workshop-content .workshop-card {
+    background: #FFFFFF;
+    border: 2px solid #000000;
+    border-radius: 16px;
+    position: relative;
+    box-shadow: 8px 8px 0px rgba(0,0,0,0.08);
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow: visible;
+}
+
+.workshop-content .workshop-card:hover {
+    box-shadow: 10px 10px 0px rgba(0,0,0,0.1);
+}
+
+/* 卡片头部 */
+.workshop-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 2px solid #000000;
+    background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+    flex-shrink: 0;
+}
+
+.workshop-card .card-header span {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #000000;
+}
+
+.workshop-card .card-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.workshop-card .card-actions i {
+    font-size: 16px;
+    color: #888;
+    cursor: pointer;
+    padding: 8px;
+    transition: all 0.2s ease;
+}
+
+.workshop-card .card-actions i:hover {
+    color: #000;
+    transform: scale(1.1);
+}
+
+/* 工作室 — 导入密码弹窗（与 workshop 卡片同系：黑框 + 硬阴影） */
+.app-view.workshop-view .import-password-overlay {
+    z-index: 1200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(6px);
+}
+
+.app-view.workshop-view .import-password-modal {
+    max-width: 340px;
+    width: 100%;
+    border-radius: 20px;
+    border: 2px solid #000000;
+    box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.12);
+    background: linear-gradient(165deg, #ffffff 0%, #f7f7f7 100%);
+    padding: 0;
+    overflow: hidden;
+    animation: importPasswordPop 0.28s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+@keyframes importPasswordPop {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.import-password-header {
+    padding: 22px 22px 12px;
+    border-bottom: 2px solid #000;
+    background: linear-gradient(135deg, #fff 0%, #fafafa 100%);
+}
+
+.import-password-title {
+    margin: 0;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #000;
+    letter-spacing: 0.02em;
+}
+
+.import-password-hint {
+    margin: 8px 0 0;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.8rem;
+    color: #666;
+    line-height: 1.45;
+}
+
+.import-password-body {
+    padding: 20px 22px 8px;
+}
+
+.import-password-label {
+    display: block;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.import-password-field {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    font-size: 1rem;
+    font-family: 'Inter', system-ui, sans-serif;
+    color: #111;
+    background: #fff;
+    border: 2px solid #000;
+    border-radius: 12px;
+    outline: none;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.import-password-field::placeholder {
+    color: #aaa;
+}
+
+.import-password-field:focus {
+    border-color: #000;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.08);
+}
+
+.import-password-error {
+    margin: 10px 0 0;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.85rem;
+    color: #b00020;
+    font-weight: 500;
+}
+
+.import-password-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding: 16px 22px 22px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.import-password-btn {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid #000;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.import-password-btn:active {
+    transform: scale(0.98);
+}
+
+.import-password-btn--ghost {
+    background: #fff;
+    color: #333;
+    box-shadow: none;
+}
+
+.import-password-btn--ghost:hover {
+    background: #f5f5f5;
+}
+
+.import-password-btn--primary {
+    background: #000;
+    color: #fff;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.15);
+}
+
+.import-password-btn--primary:hover {
+    box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* 卡片内容区域 - 可滚动 */
+.workshop-card .card-body {
+    padding: 20px 24px;
+    overflow: visible;
+}
+
+/* 卡片底部按钮 */
+.workshop-card .btn.w-100 {
+    margin: 0 24px 20px 24px;
+    flex-shrink: 0;
+    width: calc(100% - 48px);
+    box-sizing: border-box;
+}
+
+/* 卡片底部按钮 - 与世界书/预设列表项对齐 */
+.workshop-card .btn.w-100 {
+    margin-left: 24px;
+    margin-right: 24px;
+    width: calc(100% - 48px);
+}
+
+/* 自定义滚动条 - 卡片内 */
+.workshop-card .card-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.workshop-card .card-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.workshop-card .card-body::-webkit-scrollbar-thumb {
+    background: #000000;
+    border-radius: 3px;
+}
+
+/* 空状态 */
+.workshop-card .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #888;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+}
+
+/* 角色网格布局 */
+.character-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
+    padding: 8px 0;
+}
+
+/* 角色卡片样式 - 简洁对称 */
+.character-card {
+    background: #FFFFFF;
+    border: 2px solid #000000;
+    border-radius: 12px;
+    padding: 16px;
+    transition: all 0.3s ease;
+    position: relative;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+}
+
+.character-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 7px 7px 0px rgba(0,0,0,0.12);
+}
+
+.character-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 2px solid #000000;
+    object-fit: cover;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+}
+
+.character-card:hover .character-avatar {
+    transform: scale(1.05);
+    box-shadow: 3px 3px 0px rgba(0,0,0,0.15);
+}
+
+.character-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #000000;
+    margin-bottom: 6px;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+}
+
+.character-summary {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #666666;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    width: 100%;
+}
+
+/* 添加角色卡片 */
+.character-card.add-card {
+    border-style: dashed;
+    background: rgba(0,0,0,0.02);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 140px;
+}
+
+.character-card.add-card i {
+    font-size: 24px;
+    color: #888;
+    transition: all 0.3s ease;
+}
+
+.character-card.add-card:hover {
+    background: rgba(0,0,0,0.04);
+}
+
+.character-card.add-card:hover i {
+    color: #000;
+    transform: scale(1.1);
+}
+
+/* 按钮样式 - 更精致 */
+.workshop-content .btn {
+    background: #FFFFFF;
+    border: 2px solid #000000;
+    color: #000000;
+    padding: 12px 24px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+}
+
+.workshop-content .btn:hover {
+    background: #000000;
+    color: #FFFFFF;
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.15);
+}
+
+.workshop-content .btn:active {
+    transform: translate(0, 0);
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+}
+
+.workshop-content .btn.w-100 {
+    width: 100%;
+    margin-top: 16px;
+}
+
+/* 小按钮样式 */
+.workshop-content .btn-small {
+    padding: 8px 16px;
+    background: #FFFFFF;
+    border: 2px solid #000000;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+}
+
+.workshop-content .btn-small:hover {
+    background: #000000;
+    color: #FFFFFF;
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0px rgba(0,0,0,0.12);
+}
+
+/* 列表项样式 - 世界书/预设 */
+.workshop-content .profile-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    background: #FFFFFF;
+    border: 2px solid #000000;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 3px 3px 0px rgba(0,0,0,0.08);
+}
+
+.workshop-content .profile-item:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0px rgba(0,0,0,0.12);
+    background: #FAFAFA;
+}
+
+/* 添加项目卡片 */
+.workshop-content .profile-item.add-item {
+    border-style: dashed;
+    background: rgba(0,0,0,0.02);
+    justify-content: center;
+    min-height: 60px;
+}
+
+.workshop-content .profile-item.add-item i {
+    font-size: 20px;
+    color: #888;
+    transition: all 0.3s ease;
+}
+
+.workshop-content .profile-item.add-item:hover {
+    background: rgba(0,0,0,0.04);
+}
+
+.workshop-content .profile-item.add-item:hover i {
+    color: #000;
+    transform: scale(1.1);
+}
+
+.workshop-content .profile-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #000000;
+    margin-bottom: 4px;
+}
+
+.workshop-content .profile-meta {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #888888;
+}
+
+/* 角色编辑模态框 - 艺术家工作室风格 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(12px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* 角色编辑模态框内容 */
+.modal-content {
+    background: #FFFFFF;
+    border: 3px solid #000000;
+    border-radius: 0;
+    box-shadow: 12px 12px 0px rgba(0,0,0,0.15);
+    max-width: 520px;
+    width: 100%;
+    max-height: 85vh;
+    overflow: visible;
+    position: relative;
+    animation: slideUpModal 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: flex;
+    flex-direction: column;
+}
+
+@keyframes slideUpModal {
+    from {
+        transform: translateY(40px) rotate(-1deg);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+/* 装饰性角标 */
+.modal-content::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, transparent 50%, #f0f0f0 50%);
+    border-radius: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* 模态框头部 */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 28px;
+    border-bottom: 3px solid #000000;
+    background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+    position: relative;
+}
+
+.modal-header span {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #000000;
+    letter-spacing: -0.02em;
+    position: relative;
+}
+
+.modal-header span::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    width: 40px;
+    height: 3px;
+    background: #000000;
+}
+
+/* 关闭按钮 */
+.modal-header .close-btn {
+    width: 44px;
+    height: 44px;
+    background: #FFFFFF;
+    border: 2px solid #000000;
+    border-radius: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+    z-index: 2;
+}
+
+.modal-header .close-btn:hover {
+    background: #000000;
+    color: #FFFFFF;
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.15);
+}
+
+/* 模态框内容区域 */
+.modal-body {
+    padding: 28px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: calc(85vh - 80px);
+    background: #FFFFFF;
+    flex: 1;
+}
+
+/* 表单标签 */
+.modal-content label {
+    display: block;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #000000;
+    margin-bottom: 10px;
+    margin-top: 20px;
+    position: relative;
+    padding-left: 12px;
+}
+
+.modal-content label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 16px;
+    background: #000000;
+}
+
+.modal-content label:first-of-type {
+    margin-top: 0;
+}
+
+/* 输入框样式 */
+.modal-content input[type="text"],
+.modal-content input[type="url"],
+.modal-content textarea,
+.modal-content select {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid #000000;
+    border-radius: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    color: #000000;
+    background: #FFFFFF;
+    transition: all 0.3s ease;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.05);
+}
+
+.modal-content input:focus,
+.modal-content textarea:focus,
+.modal-content select:focus {
+    outline: none;
+    border-color: #000000;
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.1);
+    transform: translate(-2px, -2px);
+}
+
+.modal-content textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* 头像输入区域 */
+.modal-content .flex {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+/* 开场白输入区域 */
+.modal-content .flex.mt-1 {
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(0,0,0,0.02);
+    border: 1px solid #e0e0e0;
+}
+
+/* 标签样式 */
+.modal-content .tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    background: #FFFFFF;
+    border: 2px solid #000000;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #000000;
+    box-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.modal-content .tag:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0px rgba(0,0,0,0.12);
+}
+
+.modal-content .tag i {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modal-content .tag i:hover {
+    color: #ff5555;
+}
+
+/* 世界书列表 */
+.modal-content .worldbook-list {
+    border: 2px solid #000000;
+    background: #FFFFFF;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.modal-content .worldbook-item {
+    padding: 14px 18px;
+    border-bottom: 1px solid #e0e0e0;
+    transition: all 0.2s ease;
+}
+
+.modal-content .worldbook-item:hover {
+    background: rgba(0,0,0,0.02);
+}
+
+.modal-content .worldbook-item:last-child {
+    border-bottom: none;
+}
+
+.modal-content .worldbook-item span {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.modal-content .worldbook-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #000000;
+    border-radius: 0;
+    cursor: pointer;
+    appearance: none;
+    background: #FFFFFF;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.modal-content .worldbook-item input[type="checkbox"]:checked {
+    background: #000000;
+}
+
+.modal-content .worldbook-item input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* 按钮样式 */
+.modal-content .btn-small {
+    padding: 10px 16px;
+    background: #FFFFFF;
+    border: 2px solid #000000;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+    white-space: nowrap;
+}
+
+.modal-content .btn-small:hover {
+    background: #000000;
+    color: #FFFFFF;
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.15);
+}
+
+.modal-content .btn-small.danger {
+    border-color: #ff5555;
+    color: #ff5555;
+}
+
+.modal-content .btn-small.danger:hover {
+    background: #ff5555;
+    color: #FFFFFF;
+}
+
+/* 底部按钮区域 */
+.modal-content .flex.mt-2:last-child {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 2px solid #000000;
+}
+
+.modal-content .btn {
+    padding: 12px 24px;
+    background: #FFFFFF;
+    border: 2px solid #000000;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+}
+
+.modal-content .btn:hover {
+    background: #000000;
+    color: #FFFFFF;
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.15);
+}
+
+.modal-content .btn-primary {
+    background: #000000;
+    color: #FFFFFF;
+}
+
+.modal-content .btn-primary:hover {
+    background: #333333;
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.2);
+}
+
+/* 自定义滚动条 */
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-left: 1px solid #000000;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #000000;
+    border-radius: 0;
+}
+
+/* 编辑界面按钮样式 - 特别美化 */
+.modal-content .btn {
+    padding: 14px 28px;
+    background: #FFFFFF;
+    border: 2px solid #000000;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.12);
+    min-width: 80px;
+    text-align: center;
+}
+
+.modal-content .btn:hover {
+    background: #000000;
+    color: #FFFFFF;
+    transform: translate(-3px, -3px);
+    box-shadow: 7px 7px 0px rgba(0,0,0,0.18);
+}
+
+.modal-content .btn:active {
+    transform: translate(0, 0);
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+}
+
+/* 主要按钮 - 保存 */
+.modal-content .btn-primary {
+    background: #000000;
+    color: #FFFFFF;
+    border: 2px solid #000000;
+    position: relative;
+    overflow: hidden;
+}
+
+.modal-content .btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.modal-content .btn-primary:hover {
+    background: #333333;
+    color: #FFFFFF;
+    transform: translate(-3px, -3px);
+    box-shadow: 7px 7px 0px rgba(0,0,0,0.2);
+}
+
+.modal-content .btn-primary:hover::before {
+    left: 100%;
+}
+
+/* 危险按钮 - 删除 */
+.modal-content .btn-danger {
+    background: #FFFFFF;
+    color: #ff4444;
+    border: 2px solid #ff4444;
+    position: relative;
+}
+
+.modal-content .btn-danger::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #ff4444;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
+    z-index: -1;
+}
+
+.modal-content .btn-danger:hover {
+    color: #FFFFFF;
+    transform: translate(-3px, -3px);
+    box-shadow: 7px 7px 0px rgba(255,68,68,0.25);
+}
+
+.modal-content .btn-danger:hover::before {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+/* 底部按钮区域特殊样式 */
+.modal-content .flex.mt-2:last-child {
+    margin-top: 36px;
+    padding-top: 28px;
+    border-top: 3px solid #000000;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* 世界书编辑界面样式 */
+.worldbook-entry {
+    border: 2px solid #000000;
+    padding: 16px;
+    margin-bottom: 16px;
+    background: #FFFFFF;
+    border-radius: 12px;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+}
+
+.worldbook-entry:hover {
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.12);
+}
+
+.worldbook-entry .entry-key {
+    margin-bottom: 12px;
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #000000;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    background: #FFFFFF;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.05);
+}
+
+.worldbook-entry .entry-content {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #000000;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    background: #FFFFFF;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.05);
+    resize: vertical;
+    min-height: 80px;
+}
+
+.worldbook-entry .entry-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+}
+
+.worldbook-entry .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.worldbook-entry .checkbox-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #000000;
+    border-radius: 4px;
+    cursor: pointer;
+    appearance: none;
+    background: #FFFFFF;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.worldbook-entry .checkbox-label input[type="checkbox"]:checked {
+    background: #000000;
+}
+
+.worldbook-entry .checkbox-label input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* 预设编辑界面样式 */
+.preset-segment {
+    border: 2px solid #000000;
+    padding: 16px;
+    margin-bottom: 16px;
+    background: #FFFFFF;
+    border-radius: 12px;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+}
+
+.preset-segment:hover {
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.12);
+}
+
+.preset-segment .segment-title {
+    margin-bottom: 12px;
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #000000;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    background: #FFFFFF;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.05);
+}
+
+.preset-segment .segment-content {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #000000;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    background: #FFFFFF;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.05);
+    resize: vertical;
+    min-height: 80px;
+}
+
+.preset-segment .segment-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+}
+
+.preset-segment .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.preset-segment .checkbox-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #000000;
+    border-radius: 4px;
+    cursor: pointer;
+    appearance: none;
+    background: #FFFFFF;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.preset-segment .checkbox-label input[type="checkbox"]:checked {
+    background: #000000;
+}
+
+.preset-segment .checkbox-label input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* 批量删除模态框 - 精进美化 */
+.batch-delete-modal {
+    max-width: 520px;
+    width: 90%;
+}
+
+.batch-delete-modal .modal-body {
+    padding: 24px;
+}
+
+/* 工具栏 */
+.batch-delete-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: #FAFAFA;
+    border: 2px solid #000000;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.06);
+}
+
+.batch-stats .stats-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    background: #000000;
+    color: #FFFFFF;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+}
+
+.batch-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: #FFFFFF;
+    border: 2px solid #000000;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.08);
+}
+
+.toolbar-btn:hover:not(:disabled) {
+    background: #000000;
+    color: #FFFFFF;
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.12);
+}
+
+.toolbar-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.toolbar-btn.danger:hover:not(:disabled) {
+    background: #ff4444;
+    border-color: #ff4444;
+}
+
+/* 项目列表 */
+.batch-delete-list {
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: 4px;
+    margin-bottom: 24px;
+}
+
+.batch-delete-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.batch-delete-list::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.05);
+    border-radius: 3px;
+}
+
+.batch-delete-list::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.2);
+    border-radius: 3px;
+}
+
+.batch-delete-item {
+    margin-bottom: 12px;
+    border: 2px solid #E0E0E0;
+    border-radius: 12px;
+    background: #FFFFFF;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.batch-delete-item:hover {
+    border-color: #000000;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.08);
+}
+
+.batch-delete-item.selected {
+    border-color: #000000;
+    background: #FAFAFA;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+}
+
+.batch-delete-label {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.hidden-checkbox {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.custom-checkbox {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #000000;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    background: #FFFFFF;
+}
+
+.custom-checkbox.checked {
+    background: #000000;
+    color: #FFFFFF;
+}
+
+.custom-checkbox i {
+    font-size: 12px;
+}
+
+.batch-delete-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.batch-delete-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #000000;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.batch-delete-meta {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #888888;
+}
+
+/* 空状态 */
+.batch-delete-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    color: #AAAAAA;
+    gap: 12px;
+}
+
+.batch-delete-empty i {
+    font-size: 48px;
+    opacity: 0.3;
+}
+
+.batch-delete-empty span {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+}
+
+/* 底部按钮区域 */
+.batch-delete-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 20px;
+    border-top: 2px solid #000000;
+}
+
+.workshop-content .mt-2 {
+    margin-top: 16px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    width: 100%;
+    overflow: hidden;
+}
+
+.card .flex {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.card input[type="text"],
+.card select {
+    flex: 1;
+    min-width: 0;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.15);
+}
+
+.card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+.character-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.character-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.character-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px 0 rgba(31, 38, 135, 0.15);
+}
+
+.character-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 12px;
+}
+
+.character-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.character-summary {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.profile-item {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
+    padding: 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.profile-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px 0 rgba(31, 38, 135, 0.15);
+}
+
+.profile-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.profile-meta {
+    font-size: 12px;
+    color: #666;
+}
