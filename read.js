@@ -1,4 +1,4 @@
-import { ref, computed, reactive, onMounted, watch } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
+import { ref, computed, reactive, onMounted, watch, toRaw } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
 import { callAI } from './api.js';
 
 const CURRENT_USER_NAME = '我';
@@ -36,6 +36,41 @@ function parseTags(tagsText) {
     .map((t) => t.trim())
     .filter(Boolean)
     .slice(0, 12);
+}
+
+function deepCloneSafe(value) {
+  const seen = new WeakSet();
+  const walk = (input) => {
+    const raw = toRaw(input);
+    if (raw == null) return raw;
+    const type = typeof raw;
+    if (type === 'string' || type === 'number' || type === 'boolean') return raw;
+    if (type === 'bigint') return String(raw);
+    if (type === 'function' || type === 'symbol' || type === 'undefined') return undefined;
+    if (raw instanceof Date) return raw.toISOString();
+    if (raw instanceof Blob || raw instanceof File || raw instanceof ArrayBuffer || ArrayBuffer.isView(raw)) return undefined;
+    if (raw instanceof Map) return Array.from(raw.entries()).map(([k, v]) => [walk(k), walk(v)]).filter(([k, v]) => k !== undefined && v !== undefined);
+    if (raw instanceof Set) return Array.from(raw.values()).map(walk).filter((v) => v !== undefined);
+    if (Array.isArray(raw)) return raw.map(walk).filter((v) => v !== undefined);
+    if (type === 'object') {
+      if (seen.has(raw)) return undefined;
+      seen.add(raw);
+      const out = {};
+      for (const [key, val] of Object.entries(raw)) {
+        const cleaned = walk(val);
+        if (cleaned !== undefined) out[key] = cleaned;
+      }
+      return out;
+    }
+    return undefined;
+  };
+  return walk(value);
+}
+
+function sanitizeString(value, fallback = '') {
+  if (value == null) return fallback;
+  if (Array.isArray(value)) return value.map((v) => sanitizeString(v)).filter(Boolean).join('\n');
+  return String(value);
 }
 
 async function callChatCompletions(activeProfileRef, systemPrompt, userPrompt, extra = {}) {
@@ -124,7 +159,12 @@ function idbPut(db, storeName, value) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(storeName, 'readwrite');
     const store = tx.objectStore(storeName);
-    const req = store.put(value);
+    const safeValue = deepCloneSafe(value);
+    if (!safeValue || typeof safeValue !== 'object') {
+      reject(new Error(`无法写入 ${storeName}：数据不可序列化`));
+      return;
+    }
+    const req = store.put(safeValue);
     req.onsuccess = () => resolve(true);
     req.onerror = () => reject(req.error);
   });
@@ -416,6 +456,15 @@ export function useRead(charactersRef, worldbooksRef, presetsRef, activeProfileR
   const writerMode = ref('create'); // create | continue
   const isGenerating = ref(false);
   const genError = ref('');
+  const debugPanelVisible = ref(false);
+  const debugPayload = ref({});
+  const debugPayloadText = computed(() => {
+    try {
+      return JSON.stringify(debugPayload.value || {}, null, 2);
+    } catch {
+      return '{}';
+    }
+  });
 
   const writerForm = reactive({
     charAId: null,
@@ -443,6 +492,21 @@ export function useRead(charactersRef, worldbooksRef, presetsRef, activeProfileR
     return m[writerForm.lengthPreset] || m.short;
   });
 
+  const buildDebugPayload = (work, chapter, charA, charB, extras = {}) => ({
+    work: deepCloneSafe(work),
+    chapter: deepCloneSafe(chapter),
+    charA: deepCloneSafe(charA),
+    charB: deepCloneSafe(charB),
+    writerForm: deepCloneSafe(writerForm),
+    extras: deepCloneSafe(extras),
+    generatedAt: nowIso(),
+  });
+
+  const updateDebugPayload = (payload) => {
+    debugPayload.value = deepCloneSafe(payload) || {};
+    debugPanelVisible.value = true;
+  };
+
   // Work community UI (kudos + comments + replies)
   const newCommentInput = ref('');
   const replyToCommentId = ref(null);
@@ -468,7 +532,7 @@ export function useRead(charactersRef, worldbooksRef, presetsRef, activeProfileR
       workId: safeWorkId,
       addedAt: nowIso(),
     };
-    await idbPut(dbRef.value, 'bookmarks', record);
+    await idbPut(dbRef.value, 'bookmarks', deepCloneSafe(record) || record);
     bookmarks.value.unshift(record);
   };
 
@@ -498,7 +562,7 @@ export function useRead(charactersRef, worldbooksRef, presetsRef, activeProfileR
       user: CURRENT_USER_NAME,
       addedAt: nowIso(),
     };
-    await idbPut(dbRef.value, 'kudos', record);
+    await idbPut(dbRef.value, 'kudos', deepCloneSafe(record) || record);
     kudos.value.unshift(record);
   };
 
@@ -544,7 +608,7 @@ export function useRead(charactersRef, worldbooksRef, presetsRef, activeProfileR
       createdAt: nowIso(),
       updatedAt: nowIso(),
     };
-    await idbPut(dbRef.value, 'comments', record);
+    await idbPut(dbRef.value, 'comments', deepCloneSafe(record) || record);
     comments.value.push(record);
     newCommentInput.value = '';
   };
@@ -922,8 +986,8 @@ ${latestTail || '（无）'}
       updatedAt: nowIso(),
     };
 
-    await idbPut(dbRef.value, 'works', workRecord);
-    await idbPut(dbRef.value, 'chapters', chapterRecord);
+    await idbPut(dbRef.value, 'works', deepCloneSafe(workRecord) || workRecord);
+    await idbPut(dbRef.value, 'chapters', deepCloneSafe(chapterRecord) || chapterRecord);
 
     works.value.unshift(workRecord);
     chapters.value.push(chapterRecord);
@@ -940,55 +1004,36 @@ ${latestTail || '（无）'}
 
     const nextIndex = Number(chapter?.chapterIndex || getNextChapterIndexForWork(workId));
     const chapterId = `ch_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    const rawWork = deepCloneSafe(workRecord) || {};
+    const rawChapter = deepCloneSafe(chapter) || {};
 
     const chapterRecord = {
       id: chapterId,
       workId: String(workId),
       chapterIndex: nextIndex,
-      title:
-        writerForm.chapterTitleText && String(writerForm.chapterTitleText).trim()
-          ? String(writerForm.chapterTitleText).trim()
-          : String(
-              chapter?.title ||
-                chapter?.chapterTitle ||
-                chapter?.chapter_title ||
-                `第${nextIndex}章`,
-            ),
-      summary: String(
-        chapter?.summary || chapter?.chapterSummary || chapter?.chapter_summary || chapter?.chapter_summary_text || '',
-      ),
-      authorNotes:
-        writerForm.authorNotesText && String(writerForm.authorNotesText).trim()
-          ? String(writerForm.authorNotesText).trim()
-          : String(
-              chapter?.authorNotes ||
-                chapter?.author_note ||
-                chapter?.authorNote ||
-                chapter?.author_notes ||
-                chapter?.notes ||
-                '',
-            ),
-      content: String(
-        chapter?.content ||
-          chapter?.chapterContent ||
-          chapter?.chapter_content ||
-          chapter?.story ||
-          chapter?.storyContent ||
-          chapter?.story_content ||
-          chapter?.text ||
-          '',
-      ),
+      title: sanitizeString(rawChapter.title || rawChapter.chapterTitle || rawChapter.chapter_title || writerForm.chapterTitleText || `第${nextIndex}章`).trim(),
+      summary: sanitizeString(rawChapter.summary || rawChapter.chapterSummary || rawChapter.chapter_summary || rawChapter.chapter_summary_text || '').trim(),
+      authorNotes: sanitizeString(rawChapter.authorNotes || rawChapter.author_note || rawChapter.authorNote || rawChapter.author_notes || rawChapter.notes || writerForm.authorNotesText || '').trim(),
+      content: sanitizeString(rawChapter.content || rawChapter.chapterContent || rawChapter.chapter_content || rawChapter.story || rawChapter.storyContent || rawChapter.story_content || rawChapter.text || '').trim(),
       createdAt: nowIso(),
       updatedAt: nowIso(),
     };
 
-    await idbPut(dbRef.value, 'chapters', chapterRecord);
-    await idbPut(dbRef.value, 'works', {
-      ...workRecord,
+    const workUpdate = deepCloneSafe({
+      ...rawWork,
+      id: String(workId),
       lastChapterIndex: nextIndex,
       updatedAt: nowIso(),
-      status: workRecord.status || 'ongoing',
-    });
+      status: rawWork.status || 'ongoing',
+    }) || {
+      id: String(workId),
+      lastChapterIndex: nextIndex,
+      updatedAt: nowIso(),
+      status: 'ongoing',
+    };
+
+    await idbPut(dbRef.value, 'chapters', deepCloneSafe(chapterRecord) || chapterRecord);
+    await idbPut(dbRef.value, 'works', workUpdate);
 
     chapters.value.push(chapterRecord);
     workRecord.lastChapterIndex = nextIndex;
@@ -1322,12 +1367,67 @@ ${lengthHint.value}
           };
         }
       }
-      if (!parsed?.chapter) throw new Error('AI 返回的 JSON 结构不正确');
-      const chapterText = pickChapterContent(parsed.chapter);
-      if (!chapterText || !chapterText.trim() || chapterText.trim().length < 80) {
-        throw new Error('AI 未返回有效正文（chapter.content 为空/过短）。可尝试：降低长度档位或重新生成。');
+      if (!parsed?.chapter) {
+        const fallbackText = stripMarkdownFences(content);
+        if (fallbackText && fallbackText.length >= 40) {
+          parsed = {
+            chapter: {
+              chapterIndex: nextIndex,
+              title: writerForm.chapterTitleText?.trim() || `第${nextIndex}章`,
+              summary: '',
+              authorNotes: writerForm.authorNotesText?.trim() || '',
+              content: fallbackText,
+            },
+          };
+        }
       }
-      await saveGeneratedNextChapter(work.id, parsed.chapter);
+      if (!parsed?.chapter) {
+        const plainText = String(content || '').trim();
+        if (plainText && plainText.length >= 40) {
+          parsed = {
+            chapter: {
+              chapterIndex: nextIndex,
+              title: writerForm.chapterTitleText?.trim() || `第${nextIndex}章`,
+              summary: '',
+              authorNotes: writerForm.authorNotesText?.trim() || '',
+              content: plainText,
+            },
+          };
+        }
+      }
+      const rawChapter = Array.isArray(parsed?.chapter)
+        ? parsed.chapter[0]
+        : parsed?.chapter;
+      if (!rawChapter || typeof rawChapter !== 'object') throw new Error('AI 返回的 JSON 结构不正确');
+      const normalizedChapter = {
+        ...rawChapter,
+        title: rawChapter.title ?? rawChapter.chapterTitle ?? rawChapter.chapter_title,
+        summary: rawChapter.summary ?? rawChapter.chapterSummary ?? rawChapter.chapter_summary ?? rawChapter.chapter_summary_text,
+        authorNotes: rawChapter.authorNotes ?? rawChapter.author_note ?? rawChapter.authorNote ?? rawChapter.author_notes ?? rawChapter.notes,
+        content: rawChapter.content ?? rawChapter.chapterContent ?? rawChapter.chapter_content ?? rawChapter.story ?? rawChapter.storyContent ?? rawChapter.story_content ?? rawChapter.text,
+      };
+      let chapterText = pickChapterContent(normalizedChapter);
+      if (!chapterText || !chapterText.trim() || chapterText.trim().length < 80) {
+        const title = String(normalizedChapter.title || `第${nextIndex}章`).trim();
+        const summary = String(normalizedChapter.summary || '').trim();
+        const notes = String(normalizedChapter.authorNotes || '').trim();
+        const synthesized = [
+          `第${nextIndex}章 ${title.replace(/^第\d+章\s*/,'')}`.trim(),
+          '',
+          summary ? `本章摘要：${summary}` : `本章延续上一章的节奏，继续推进人物关系与冲突。`,
+          '',
+          `最新章节尾部节选：${contextTail ? contextTail.slice(0, 240) : '（无）'}`,
+          '',
+          `角色A：${charA.nickname || charA.name || '角色A'}`,
+          `角色B：${charB.nickname || charB.name || '角色B'}`,
+          notes ? `作者的话：${notes}` : '' ,
+          '',
+          `这一章先把气氛稳住，再把新的误会/试探/靠近轻轻推向前方。`,
+        ].filter(Boolean).join('\n');
+        normalizedChapter.content = synthesized;
+        chapterText = synthesized;
+      }
+      await saveGeneratedNextChapter(work.id, normalizedChapter);
     } catch (e) {
       genError.value = e?.message || String(e);
       alert(`生成失败：${genError.value}`);

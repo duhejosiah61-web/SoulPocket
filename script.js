@@ -89,6 +89,62 @@ export function setupApp() {
         lastTick: Date.now()
     });
     const userAvatar = ref('');
+    const MINE_HERO_TITLE_KEY = 'soulos_mine_hero_title';
+    const MINE_HERO_SUB_KEY = 'soulos_mine_hero_sub';
+    const MINE_HERO_QUOTE_KEY = 'soulos_mine_hero_quote';
+    const MINE_COLLECTION_BG_KEY = 'soulos_mine_collection_bg';
+
+    const mineHeroTitle = ref(localStorage.getItem(MINE_HERO_TITLE_KEY) || '我');
+    const mineHeroSub = ref(localStorage.getItem(MINE_HERO_SUB_KEY) || '灵魂编号：9527');
+    const mineHeroQuote = ref(localStorage.getItem(MINE_HERO_QUOTE_KEY) || '“音乐是灵魂的另一种语言。”');
+    const mineHeroTitleInput = ref(mineHeroTitle.value);
+    const mineHeroSubInput = ref(mineHeroSub.value);
+    const mineHeroQuoteInput = ref(mineHeroQuote.value);
+    const mineCollectionBg = ref(localStorage.getItem(MINE_COLLECTION_BG_KEY) || '');
+    const mineCollectionBgInput = ref('');
+    const showMineProfileEditor = ref(false);
+    const mineProfileField = ref('title');
+
+    const openMineProfileEditor = (field = 'title') => {
+        mineProfileField.value = field;
+        if (field === 'title') mineHeroTitleInput.value = mineHeroTitle.value;
+        if (field === 'sub') mineHeroSubInput.value = mineHeroSub.value;
+        if (field === 'quote') mineHeroQuoteInput.value = mineHeroQuote.value;
+        showMineProfileEditor.value = true;
+    };
+
+    const closeMineProfileEditor = () => {
+        showMineProfileEditor.value = false;
+    };
+
+    const saveMineProfileField = () => {
+        if (mineProfileField.value === 'title') {
+            mineHeroTitle.value = String(mineHeroTitleInput.value || '').trim() || '我';
+            localStorage.setItem(MINE_HERO_TITLE_KEY, mineHeroTitle.value);
+        } else if (mineProfileField.value === 'sub') {
+            mineHeroSub.value = String(mineHeroSubInput.value || '').trim() || '灵魂编号：9527';
+            localStorage.setItem(MINE_HERO_SUB_KEY, mineHeroSub.value);
+        } else {
+            mineHeroQuote.value = String(mineHeroQuoteInput.value || '').trim() || '“音乐是灵魂的另一种语言。”';
+            localStorage.setItem(MINE_HERO_QUOTE_KEY, mineHeroQuote.value);
+        }
+        showMineProfileEditor.value = false;
+    };
+
+    const applyMineCollectionBgLink = () => {
+        const next = String(mineCollectionBgInput.value || '').trim();
+        if (!next) return;
+        mineCollectionBg.value = next;
+        localStorage.setItem(MINE_COLLECTION_BG_KEY, next);
+        mineCollectionBgInput.value = '';
+    };
+
+    const clearMineCollectionBg = () => {
+        mineCollectionBg.value = '';
+        mineCollectionBgInput.value = '';
+        localStorage.removeItem(MINE_COLLECTION_BG_KEY);
+    };
+
     const runImageProcessor = (dataUrl, preset, onDone) => {
         const processor = typeof globalThis.compressAvatarImage === 'function'
             ? globalThis.compressAvatarImage
@@ -4154,6 +4210,8 @@ ${styleGuide}
             musicGenerateCharPlaylistByAI: musicState.generateCharPlaylistByAI,
             musicPlayCharPlaylistWith: musicState.playCharPlaylistWith,
             fetchPublicCommentsForCurrentTrack: musicState.fetchPublicCommentsForCurrentTrack,
+            askMusicCharComment: musicState.askMusicCharComment,
+            musicReplyToMyJournal: musicState.musicReplyToMyJournal,
             musicSeekFromEvent: musicState.seekFromEvent,
             musicSetVolume: musicState.setVolume,
             musicCycleRepeatMode: musicState.cycleRepeatMode,
@@ -4165,10 +4223,30 @@ ${styleGuide}
             onMusicAudioCanPlay: musicState.onAudioCanPlay,
             onMusicAudioError: musicState.onAudioError,
             onMusicAudioEnded: musicState.onAudioEnded,
+            contextMenu,
+            showArchiveDialog,
+            showCreateGroupDialog,
+            showAddMemberDialog,
+            showMemberEditor,
+            showArchivedChats,
+            showRenameGroupDialog,
+            openLoginModal: musicState.openLoginModal,
+            closeLoginModal: musicState.closeLoginModal,
+            logoutNetease: musicState.logoutNetease,
+            myVipCookie: musicState.myVipCookie,
+            music: musicState.loginState,
+            musicOpenLoginModal: musicState.music.openLoginModal,
+            musicCloseLoginModal: musicState.music.closeLoginModal,
+            musicLogoutNetease: musicState.music.logoutNetease,
+            myVipCookie: musicState.myVipCookie,
             // New Features (Chat Menu, Call, Virtual Camera, Panels)
             chatSettings,
             chatSummaryBoardList,
             userAvatar, uploadUserAvatar, resetUserAvatar,
+            mineHeroTitle, mineHeroSub, mineHeroQuote,
+            mineHeroTitleInput, mineHeroSubInput, mineHeroQuoteInput,
+            showMineProfileEditor, mineProfileField, openMineProfileEditor, closeMineProfileEditor, saveMineProfileField,
+            mineCollectionBg, mineCollectionBgInput, applyMineCollectionBgLink, clearMineCollectionBg,
             setBubbleStyle, applyBubbleStyle, applyCustomCSS,
             saveAndCloseSettings, confirmChatMenu, showArchiveDialog, showArchivedChats, archiveName, archiveDescription, archivedChats, filteredArchivedChats, sortedArchivedChats, archiveCurrentChat, restoreArchivedChat, deleteArchivedChat,
             saveChatMenuSettings, loadChatMenuSettings, clearChatHistory, exportChatHistory, showCreateGroupDialog, newGroupName, newGroupMembers, createNewGroup, newGroupAvatar, selectedGroupMembers, groupAvatarInput, triggerGroupAvatarUpload, handleGroupAvatarUpload, toggleGroupMember, showAddMemberDialog, selectedAddMembers, getAvailableCharactersForAdd, toggleAddMember, addMembersToGroup, removeGroupMember, addMemberMode, customMemberAvatar, customMemberName, customMemberPersona, customMemberWorldbookIds, customMemberPresetId, customMemberTimeZone, customMemberAvatarInput, triggerCustomMemberAvatarUpload, handleCustomMemberAvatarUpload, addCustomMember, showMemberEditor, editingMember, openMemberEditor, closeMemberEditor, saveMemberEditor, showRenameGroupDialog, newGroupNameInput, tempGroupAvatar, renameGroupAvatarInput, triggerRenameGroupAvatarUpload, handleRenameGroupAvatarUpload, renameGroup, shakeCharacter, shakeGroupMember,
@@ -4227,6 +4305,17 @@ ${styleGuide}
             musicSeekFromEvent: musicState.seekFromEvent,
             musicSetVolume: musicState.setVolume,
             musicCycleRepeatMode: musicState.cycleRepeatMode,
+            wanderMessages: musicState.wanderMessages,
+            wanderInput: musicState.wanderInput,
+            wanderEmojiOpen: musicState.wanderEmojiOpen,
+            wanderQuoteMsg: musicState.wanderQuoteMsg,
+            sendWanderMessage: musicState.sendWanderMessage,
+            insertWanderEmoji: musicState.insertWanderEmoji,
+            quoteWanderMessage: musicState.quoteWanderMessage,
+            deleteWanderMessage: musicState.deleteWanderMessage,
+            recallWanderMessage: musicState.recallWanderMessage,
+            musicPetStyle: musicState.musicPetStyle,
+            startMusicPetDrag: musicState.startMusicPetDrag,
             onMusicAudioTimeUpdate: musicState.onAudioTimeUpdate,
             onMusicAudioLoadedMetadata: musicState.onAudioLoadedMetadata,
             onMusicAudioPlay: musicState.onAudioPlay,
