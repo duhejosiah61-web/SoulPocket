@@ -42,10 +42,10 @@ export function useHome({
     line2: localStorage.getItem('photoWidgetText2') || 'COMING'
   });
   const photoWidgetPhotos = ref([
-    { url: localStorage.getItem('photoWidgetPhoto0') || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=300&fit=crop' },
-    { url: localStorage.getItem('photoWidgetPhoto1') || 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=300&fit=crop' },
-    { url: localStorage.getItem('photoWidgetPhoto2') || 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=200&h=300&fit=crop' },
-    { url: localStorage.getItem('photoWidgetPhoto3') || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=300&fit=crop' }
+    { url: localStorage.getItem('photoWidgetPhoto0') || '404.png' },
+    { url: localStorage.getItem('photoWidgetPhoto1') || '404.png' },
+    { url: localStorage.getItem('photoWidgetPhoto2') || '404.png' },
+    { url: localStorage.getItem('photoWidgetPhoto3') || '404.png' }
   ]);
 
   const updatePhotoWidgetDate = () => {
@@ -104,7 +104,7 @@ export function useHome({
     closePhotoWidgetEditDialog();
   };
 
-  const stickerWidgetUrl = ref(localStorage.getItem('stickerWidgetUrl') || 'https://img.heliar.top/file/1773774569024_retouch_2026031803084004.png');
+  const stickerWidgetUrl = ref(localStorage.getItem('stickerWidgetUrl') || '404.png');
   const changeStickerWidgetImage = () => {
     const input = document.createElement('input');
     input.type = 'file';

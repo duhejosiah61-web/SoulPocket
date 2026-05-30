@@ -2069,25 +2069,96 @@ export function useChat(
     const toggleSpeaker = () => { isSpeakerOn.value = !isSpeakerOn.value; };
     const toggleCamera = () => { isCameraOn.value = !isCameraOn.value; };
     const toggleCallInput = () => { showCallInput.value = !showCallInput.value; };
-    const sendCallText = () => {
-        if (!callInputText.value.trim()) return;
+    const sendCallText = async () => {
+        const text = callInputText.value.trim();
+        if (!text) return;
+
+        // 1. 用户的输入立即上屏
         callMessages.value.push({
             sender: 'user',
-            text: callInputText.value,
+            text: text,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         });
-        const input = callInputText.value;
         callInputText.value = '';
         isCallAiTyping.value = true;
-        // 简化的AI回复（实际应调用API）
-        setTimeout(() => {
+
+        // 2. 检查大模型 API 配置
+        const profile = activeProfile.value;
+        if (!profile || !profile.endpoint || !profile.key) {
             isCallAiTyping.value = false;
             callMessages.value.push({
-                sender: 'ai',
-                text: '（通话AI回复示例）',
+                sender: 'system',
+                text: '（通话中断：未检测到 API 配置）',
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             });
-        }, 1000);
+            return;
+        }
+
+        // 3. 获取当前聊天对象信息
+        let charName = 'TA';
+        let charPersona = '';
+        if (soulLinkActiveChatType.value === 'character') {
+            const char = characters.value.find(c => String(c.id) === String(soulLinkActiveChat.value));
+            if (char) {
+                charName = char.nickname || char.name;
+                charPersona = char.persona || '';
+            }
+        } else if (soulLinkActiveChatType.value === 'group') {
+            const group = soulLinkGroups.value.find(g => String(g.id) === String(soulLinkActiveChat.value));
+            if (group) charName = group.name;
+        }
+
+        // 4. 构建针对【通话场景】的特化 Prompt
+        const callModeStr = callType.value === 'video' ? '视频' : '语音';
+        const systemPrompt = `你现在正在和用户进行${callModeStr}通话。
+你的名字/身份是：${charName}。
+${charPersona ? `你的设定：${charPersona}\n` : ''}
+【通话要求（最高优先级）】：
+1. 必须像真人打电话一样，使用极度口语化、生活化、简短的句子。
+2. 每次回复限制在1-3句话以内。
+3. 绝对不要输出任何动作描写、表情符号、心理描写（严禁出现 [OS]、[图片]、*微笑* 等），只能输出嘴里说出来的话。
+4. 根据下方的通话上下文自然回应。`;
+
+        const messagesPayload = [{ role: 'system', content: systemPrompt }];
+
+        // 5. 拼装本次通话的历史记录 (取最近的12条避免Token过长)
+        const recentMessages = callMessages.value.slice(-12);
+        recentMessages.forEach(m => {
+            if (m.sender === 'user') {
+                messagesPayload.push({ role: 'user', content: m.text });
+            } else if (m.sender === 'ai') {
+                messagesPayload.push({ role: 'assistant', content: m.text });
+            }
+        });
+
+        // 6. 调用 API 获取回复
+        try {
+            const replyRaw = await callAI(profile, messagesPayload, {
+                temperature: 0.75, // 稍微高一点让对话更自然
+                max_tokens: 150
+            });
+
+            let replyText = String(replyRaw || '').trim();
+            if (!replyText) replyText = '（沉默了...）';
+
+            // 强制清理可能被模型误生成的格式化标签
+            replyText = replyText.replace(/\[.*?\]/g, '').replace(/【.*?】/g, '').replace(/\*.*?\*/g, '').trim();
+
+            callMessages.value.push({
+                sender: 'ai',
+                text: replyText,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+        } catch (error) {
+            console.error('Call AI Error:', error);
+            callMessages.value.push({
+                sender: 'system',
+                text: `（信号不佳：${error.message}）`,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+        } finally {
+            isCallAiTyping.value = false;
+        }
     };
 
     const swapVideoAvatars = () => {
