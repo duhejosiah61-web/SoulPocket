@@ -1,7 +1,5 @@
 import { computed, nextTick, reactive, ref, watch } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
 import { callAI } from './api.js';
-
-// ✅ 1. 先把这两个最基础的工具函数挪到最顶端，确保后面调用时不会报未初始化错误
 const safeLocalStorageGet = (key) => {
   try { return localStorage.getItem(key); } catch { return null; }
 };
@@ -9,13 +7,12 @@ const safeLocalStorageSet = (key, value) => {
   try { localStorage.setItem(key, value); } catch {}
 };
 
-// ✅ 2. 基础配置
 const MUSIC_COVER_PLACEHOLDER = '404.png';
 const MUSIC_COOKIE_KEY = 'soulpocket_netease_cookie';
-
-// ✅ 3. 此时再获取本地 Cookie 状态，就绝对不会报错了
-const myVipCookie = ref(safeLocalStorageGet(MUSIC_COOKIE_KEY) || '');
-
+// 彻底清空，不再把 VIP 凭证暴露在前端
+const HARDCODED_NETEASE_COOKIE = ''; 
+// 初始化时优先尝试读取本地缓存的普通用户登录态（如果有的话）
+const myVipCookie = ref(safeLocalStorageGet(MUSIC_COOKIE_KEY) || HARDCODED_NETEASE_COOKIE);
 const updateNeteaseCookie = (newCookie) => {
     myVipCookie.value = newCookie; // 注意这里加了 .value
     safeLocalStorageSet(MUSIC_COOKIE_KEY, newCookie);
@@ -29,6 +26,7 @@ const MUSIC_VOLUME_KEY = 'soulpocket_music_volume_v1';
 const MUSIC_CHAT_HISTORY_KEY = 'soulpocket_music_chat_history_v1';
 const MUSIC_HOME_RECOMMENDED_KEY = 'soulpocket_music_home_recommended_v1';
 const MUSIC_HOME_CHAR_KEY = 'soulpocket_music_home_char_v1';
+const MUSIC_JOURNAL_MAP_KEY = 'soulpocket_music_journal_map_v1';
 
 const DEMO_PLAYLIST = [
   { id: 'demo-middle', title: 'The Middle', artist: 'Dream Tunes', duration: '03:42', genre: 'indie', lyric: 'You are the middle of my night', mood: '推荐', source: 'demo', cover: MUSIC_COVER_PLACEHOLDER, src: 'https://files.catbox.moe/4bugg1.mp3' },
@@ -125,19 +123,69 @@ const getPlayableUrl = async (song) => {
   if (song.source !== 'netease') return '';
 
   const ensureHttps = (url) => String(url || '').trim().replace(/^http:\/\//i, 'https://');
-  const cookieParam = myVipCookie ? `&cookie=${encodeURIComponent(myVipCookie)}` : '';
+  const cookieParam = ''; 
+  const cookieHeader = {};
 
   try {
-    const v1 = await requestJson(`/song/url/v1?id=${encodeURIComponent(song.id)}&level=exhigh&realIP=116.25.146.177${cookieParam}`);
-    const url1 = ensureHttps(v1?.data?.[0]?.url);
-    if (url1) return url1;
-  } catch {}
-
+    const v1 = await fetch(`${MUSIC_API_BASE}/song/url/v1?id=${encodeURIComponent(song.id)}&level=exhigh&realIP=116.25.146.177${cookieParam}`, {
+      headers: cookieHeader
+    }).then(async (resp) => {
+      const text = await resp.text();
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${text.slice(0, 200)}`);
+      try { return JSON.parse(text); } catch { throw new Error(`非 JSON 响应: ${text.slice(0, 200)}`); }
+    });
+    
+    const songData = v1?.data?.[0];
+    if (songData) {
+      if (songData.freeTrialInfo || songData.fee === 1 || songData.fee === 4) {
+         console.warn('[music] 只有30秒试听权限');
+      }
+      
+      const url1 = ensureHttps(songData.url);
+      console.log('[music] song/url/v1 result', {
+        id: song.id,
+        source: song.source,
+        hasCookie: false, // 👈 已经修复：不再引用不存在的变量
+        url: url1 || '',
+        br: songData.br,
+        level: songData.level,
+        size: songData.size,
+        fee: songData.fee,
+        flag: songData.flag,
+        code: v1?.code
+      });
+      
+      if (url1) return url1;
+    } 
+  } catch (error) {
+    console.warn('[music] song/url/v1 failed', error);
+  }
+  
   try {
-    const fallback = await requestJson(`/song/url?id=${encodeURIComponent(song.id)}&br=320000&realIP=116.25.146.177${cookieParam}`);
+    const fallback = await fetch(`${MUSIC_API_BASE}/song/url?id=${encodeURIComponent(song.id)}&br=320000&realIP=116.25.146.177${cookieParam}`, {
+      headers: cookieHeader
+    }).then(async (resp) => {
+      const text = await resp.text();
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${text.slice(0, 200)}`);
+      try { return JSON.parse(text); } catch { throw new Error(`非 JSON 响应: ${text.slice(0, 200)}`); }
+    });
     const url2 = ensureHttps(fallback?.data?.[0]?.url || fallback?.data?.url);
+    console.log('[music] song/url fallback result', {
+      id: song.id,
+      source: song.source,
+      hasCookie: false, // 👈 已经修复：不再引用不存在的变量
+      url: url2 || fallback?.data?.[0]?.url || fallback?.data?.url || '',
+      br: fallback?.data?.[0]?.br,
+      level: fallback?.data?.[0]?.level,
+      size: fallback?.data?.[0]?.size,
+      fee: fallback?.data?.[0]?.fee,
+      flag: fallback?.data?.[0]?.flag,
+      code: fallback?.code
+    });
     if (url2) return url2;
-  } catch {}
+  } catch (error) {
+    console.warn('[music] song/url fallback failed', error);
+  }
 
   return '';
 };
@@ -187,6 +235,21 @@ export function useMusic({ characters = [], currentCharacter = null, activeProfi
   const lyricsScrollBox = ref(null);
 
   const charGeneratedPlaylists = reactive({});
+  const journalMap = ref(safeJsonParse(safeLocalStorageGet(MUSIC_JOURNAL_MAP_KEY), {}));
+  const musicPetX = ref(18);
+  const musicPetY = ref(110);
+  const musicPetDragging = ref(false);
+  const musicPetDragOffsetX = ref(0);
+  const musicPetDragOffsetY = ref(0);
+  const musicPetRotation = ref(0);
+  const persistJournalMap = () => safeLocalStorageSet(MUSIC_JOURNAL_MAP_KEY, JSON.stringify(journalMap.value || {}));
+  const setJournalForSong = (song, patch = {}) => {
+    const key = songKey(song);
+    if (!key) return;
+    const prev = journalMap.value?.[key] || {};
+    journalMap.value = { ...journalMap.value, [key]: { ...prev, ...patch } };
+    persistJournalMap();
+  };
 
   const music = reactive({
     activeIndex: 0, isPlaying: false, isLoading: false,
@@ -213,6 +276,17 @@ export function useMusic({ characters = [], currentCharacter = null, activeProfi
     profileStats: { liked: 0, created: 1, recent: 0 },
     aiGeneratingCharId: '',
     aiGenerateStatusByChar: {},
+    aiJournalLoading: false,
+    aiJournalText: '',
+    myJournalInput: '',
+    myJournalReply: '',
+    aiJournalTime: '',
+    myInsightText: '',
+    myInsightReply: '',
+    wanderInput: '',
+    wanderMessages: [],
+    wanderEmojiOpen: false,
+    wanderQuoteMsg: null,
 
     // 登录状态
     loginState: {
@@ -273,10 +347,6 @@ watch(myVipCookie, (newVal) => {
     music.myVipCookie = newVal;
 }, { immediate: true });
 
-  watch(myVipCookie, (newVal) => {
-      music.myVipCookie = newVal;
-  }, { immediate: true });
-
 
   const currentTrack = computed(() => music.playlist[music.activeIndex] || music.playlist[0] || normalizeSong({}));
   const progressPercent = computed(() => music.durationSeconds ? Math.min(100, Math.max(0, (music.currentTime / music.durationSeconds) * 100)) : 0);
@@ -319,6 +389,138 @@ watch(myVipCookie, (newVal) => {
     music.activeLyricIndex = -1;
   };
 
+  const applySongJournal = (song) => {
+    const data = journalMap.value?.[songKey(song)] || {};
+    const currentCharId = String(currentCharacter?.value?.id || currentCharacter?.id || '');
+    const savedCharId = String(data.charId || '');
+    if (!data?.aiJournalText || (savedCharId && currentCharId && savedCharId !== currentCharId)) {
+      music.aiJournalText = '';
+      music.aiJournalTime = '';
+      music.myJournalInput = '';
+      music.myJournalReply = '';
+      return;
+    }
+    music.aiJournalText = data.aiJournalText || '';
+    music.aiJournalTime = data.aiJournalTime || '';
+    music.myJournalInput = '';
+    music.myJournalReply = data.myInsightReply || '';
+  };
+
+  const getWanderKey = () => `${String(currentCharacter?.value?.id || currentCharacter?.id || currentCharacter?.value?.nickname || currentCharacter?.nickname || currentCharacter?.value?.name || currentCharacter?.name || 'char')}::${songKey(currentTrack.value)}`;
+  const persistWanderMessages = () => {
+    const key = getWanderKey();
+    const saved = safeJsonParse(safeLocalStorageGet(MUSIC_JOURNAL_MAP_KEY + '_wander'), {});
+    saved[key] = Array.isArray(music.wanderMessages) ? music.wanderMessages.slice(-100) : [];
+    safeLocalStorageSet(MUSIC_JOURNAL_MAP_KEY + '_wander', JSON.stringify(saved));
+  };
+  const loadWanderMessages = () => {
+    const raw = safeLocalStorageGet(MUSIC_JOURNAL_MAP_KEY + '_wander');
+    const saved = safeJsonParse(raw, {});
+    const key = getWanderKey();
+    music.wanderMessages = Array.isArray(saved[key]) ? saved[key] : [];
+  };
+  const syncWanderMessages = () => {
+    const key = getWanderKey();
+    const saved = safeJsonParse(safeLocalStorageGet(MUSIC_JOURNAL_MAP_KEY + '_wander'), {});
+    saved[key] = Array.isArray(music.wanderMessages) ? music.wanderMessages.slice(-100) : [];
+    safeLocalStorageSet(MUSIC_JOURNAL_MAP_KEY + '_wander', JSON.stringify(saved));
+  };
+  const pushWanderMessage = (msg) => {
+    music.wanderMessages = [...music.wanderMessages, msg].slice(-100);
+    persistWanderMessages();
+  };
+  const wanderMessages = computed({
+    get: () => music.wanderMessages,
+    set: (val) => { music.wanderMessages = Array.isArray(val) ? val : []; }
+  });
+  const wanderInput = computed({
+    get: () => music.wanderInput,
+    set: (val) => { music.wanderInput = val; }
+  });
+  const wanderEmojiOpen = computed({
+    get: () => music.wanderEmojiOpen,
+    set: (val) => { music.wanderEmojiOpen = !!val; }
+  });
+  const wanderQuoteMsg = computed({
+    get: () => music.wanderQuoteMsg,
+    set: (val) => { music.wanderQuoteMsg = val; }
+  });
+  const insertWanderEmoji = (emoji) => {
+    music.wanderInput = `${music.wanderInput || ''}${emoji || ''}`;
+    music.wanderEmojiOpen = false;
+  };
+  const getMusicPetPos = (evt) => {
+    const p = evt?.touches?.[0] || evt?.changedTouches?.[0] || evt;
+    return { x: p?.clientX || 0, y: p?.clientY || 0 };
+  };
+  const startMusicPetDrag = (evt) => {
+    const p = getMusicPetPos(evt);
+    musicPetDragging.value = true;
+    musicPetDragOffsetX.value = p.x - musicPetX.value;
+    musicPetDragOffsetY.value = p.y - musicPetY.value;
+    const move = (e) => {
+      if (!musicPetDragging.value) return;
+      const pt = getMusicPetPos(e);
+      musicPetX.value = Math.max(8, Math.min(window.innerWidth - 76, pt.x - musicPetDragOffsetX.value));
+      musicPetY.value = Math.max(72, Math.min(window.innerHeight - 140, pt.y - musicPetDragOffsetY.value));
+      musicPetRotation.value = (musicPetRotation.value + 2) % 360;
+    };
+    const up = () => {
+      musicPetDragging.value = false;
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+      window.removeEventListener('touchmove', move);
+      window.removeEventListener('touchend', up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+    window.addEventListener('touchmove', move, { passive: false });
+    window.addEventListener('touchend', up);
+  };
+  const sendWanderMessage = async () => {
+    const text = String(music.wanderInput || '').trim();
+    if (!text) return;
+    const profile = activeProfile?.value || activeProfile;
+    const role = currentCharacter?.value || currentCharacter || {};
+    const name = role?.nickname || role?.name || 'Kumo';
+    const persona = String(role?.persona || role?.description || role?.summary || '').trim();
+    const quoted = music.wanderQuoteMsg;
+    const userMsg = { id: Date.now(), sender: 'user', senderName: '我', text, timestamp: Date.now(), isReplied: false, quoteFrom: quoted ? `${quoted.senderName || '对方'}：${quoted.text || ''}` : '' };
+    pushWanderMessage(userMsg);
+    music.wanderInput = '';
+    music.wanderQuoteMsg = null;
+    if (!profile?.endpoint || !profile?.key) return;
+    music.aiJournalLoading = true;
+    try {
+      const reply = await callAI(profile, [
+        { role: 'system', content: '你是在漫游页面里和用户聊天的虚拟角色。请像真人一样简短回复，1-3句，允许自然情绪和少量emoji，不要输出解释。' },
+        { role: 'user', content: `角色名：${name}\n角色人设：${persona || '温柔、感性、陪伴型'}\n当前歌曲：${currentTrack.value?.title || ''} - ${currentTrack.value?.artist || ''}\n用户消息：${text}` }
+      ], { temperature: 0.84, max_tokens: 180 });
+      const aiText = String(reply || '').trim() || `${name}：我听见你了。`;
+      pushWanderMessage({ id: Date.now() + 1, sender: 'ai', senderName: name, text: aiText, timestamp: Date.now() + 1, quoteFrom: quoted ? `${quoted.senderName || '对方'}：${quoted.text || ''}` : '' });
+    } catch {
+      pushWanderMessage({ id: Date.now() + 1, sender: 'ai', senderName: name, text: `${name}：刚刚那句话，我会记在心里。`, timestamp: Date.now() + 1 });
+    } finally {
+      music.aiJournalLoading = false;
+    }
+  };
+  const quoteWanderMessage = (msg) => {
+    if (!msg) return;
+    music.wanderQuoteMsg = msg;
+    music.wanderInput = `@${msg.senderName || '对方'} `;
+  };
+  const deleteWanderMessage = (msg) => {
+    music.wanderMessages = music.wanderMessages.filter((m) => m.id !== msg?.id);
+    persistWanderMessages();
+  };
+  const recallWanderMessage = (msg) => {
+    if (!msg || msg.sender !== 'user') return;
+    const now = Date.now();
+    if (now - (msg.timestamp || msg.id) > 120000) return;
+    music.wanderMessages = music.wanderMessages.filter((m) => m.id !== msg.id);
+    persistWanderMessages();
+  };
+
   const playSong = async (song, { addToQueue = true } = {}) => {
     const normalized = normalizeSong(song);
     music.playError = ''; music.isLoading = true;
@@ -333,6 +535,7 @@ watch(myVipCookie, (newVal) => {
     if (idx >= 0) music.playlist[idx] = normalized;
     persistQueue();
     await loadLyrics(normalized);
+    applySongJournal(normalized);
     await nextTick();
 
     const el = audioRef.value;
@@ -491,25 +694,77 @@ watch(myVipCookie, (newVal) => {
 
   const askMusicCharComment = async (song = currentTrack.value) => {
     const profile = activeProfile?.value || activeProfile;
-    const name = currentCharacter?.value?.nickname || currentCharacter?.nickname || 'Kumo';
+    const role = currentCharacter?.value || currentCharacter || {};
+    const name = role?.nickname || role?.name || 'Kumo';
+    const persona = String(role?.persona || role?.description || role?.summary || '').trim();
     const prompt = `你是虚拟角色 ${name}。请围绕当前歌曲写一句简短有情绪的乐评，只输出一句中文。歌曲名：${song?.title || ''}；歌手：${song?.artist || ''}。`;
+
+    music.aiJournalLoading = true;
+    music.aiJournalText = '';
+    music.aiJournalTime = '';
+
     if (!profile?.endpoint || !profile?.key) {
-      const fallback = `${name} 觉得这首歌像一段慢慢落下的夜色。`;
+      const fallback = `${name}：谢谢这首《${song?.title || '这首歌'}》，在我最安静的时候，替我把想说的话慢慢说完。`;
+      music.aiJournalText = fallback;
+      music.aiJournalTime = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
       await sendMusicChatMessage(fallback, 'char');
+      music.aiJournalLoading = false;
       return fallback;
     }
     try {
       const reply = await callAI(profile, [
-        { role: 'system', content: '你是一个会和用户一起听歌的虚拟角色，只输出一句乐评。' },
-        { role: 'user', content: prompt }
-      ], { temperature: 0.85, max_tokens: 120 });
-      const clean = String(reply || '').trim();
-      await sendMusicChatMessage(clean || prompt, 'char');
+        { role: 'system', content: '你是一个有稳定人设的虚拟角色，文风克制、细腻。输出一段80~140字中文，像写给歌曲的感谢信。禁止分点、禁止解释、禁止markdown。' },
+        { role: 'user', content: `角色名：${name}\n角色人设：${persona || '温柔、感性、陪伴型'}\n歌曲名：${song?.title || ''}\n歌手：${song?.artist || ''}\n任务：以该角色口吻，写一段“对这首歌的感谢”，要有情绪、有画面感。` }
+      ], { temperature: 0.86, max_tokens: 220 });
+      const clean = String(reply || '').trim() || prompt;
+      music.aiJournalText = clean;
+      music.aiJournalTime = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+      setJournalForSong(song, { aiJournalText: music.aiJournalText, aiJournalTime: music.aiJournalTime });
+      await sendMusicChatMessage(clean, 'char');
       return clean;
     } catch {
-      const fallback = `${name} 说：这首歌像是把没说出口的话都轻轻放下了。`;
+      const fallback = `${name}：谢谢你把夜晚的褶皱一寸寸抚平，让我在人群散去之后，还能听见自己心里的回声。`;
+      music.aiJournalText = fallback;
       await sendMusicChatMessage(fallback, 'char');
       return fallback;
+    } finally {
+      music.aiJournalLoading = false;
+    }
+  };
+
+  const musicReplyToMyJournal = async () => {
+    const text = String(music.myJournalInput || '').trim();
+    if (!text) return '';
+    const profile = activeProfile?.value || activeProfile;
+    const role = currentCharacter?.value || currentCharacter || {};
+    const name = role?.nickname || role?.name || 'Kumo';
+    const persona = String(role?.persona || role?.description || role?.summary || '').trim();
+    const song = currentTrack.value;
+    const key = songKey(song) + '::' + String(role?.id || role?.nickname || role?.name || '');
+
+    music.myJournalReply = '';
+
+    if (!profile?.endpoint || !profile?.key) {
+      music.myJournalReply = `${name}：我看见你写下的这段心情了，它很轻，却很真。`;
+      setJournalForSong(song, { myInsightText: text, myInsightReply: music.myJournalReply, myInsightTime: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }), charId: String(role?.id || '') });
+      music.myJournalInput = '';
+      return music.myJournalReply;
+    }
+
+    try {
+      const reply = await callAI(profile, [
+        { role: 'system', content: '你是用户正在一起听歌的角色，请以角色口吻，回复用户感悟。输出1-2句中文，温柔克制。' },
+        { role: 'user', content: `角色名：${name}\n角色人设：${persona || '温柔、感性、陪伴型'}\n当前歌曲：${song?.title || ''} - ${song?.artist || ''}\n用户感悟：${text}` }
+      ], { temperature: 0.82, max_tokens: 160 });
+      music.myJournalReply = String(reply || '').trim() || `${name}：我听见你了。`;
+      setJournalForSong(song, { myInsightText: text, myInsightReply: music.myJournalReply, myInsightTime: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }), charId: String(role?.id || '') });
+      music.myJournalInput = '';
+      return music.myJournalReply;
+    } catch {
+      music.myJournalReply = `${name}：谢谢你把这一刻写下来，我会记得。`;
+      setJournalForSong(song, { myInsightText: text, myInsightReply: music.myJournalReply, myInsightTime: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }), charId: String(role?.id || '') });
+      music.myJournalInput = '';
+      return music.myJournalReply;
     }
   };
 
@@ -667,8 +922,14 @@ watch(myVipCookie, (newVal) => {
     music.durationSeconds = 0;
     music.playError = '';
     void loadLyrics(currentTrack.value);
+    applySongJournal(currentTrack.value);
     if (music.viewMode === 'public') void fetchPublicCommentsForCurrentTrack();
   });
+
+  watch(() => [currentCharacter?.value?.id || currentCharacter?.id || '', currentTrack.value?.id || currentTrack.value?.source || ''].join('::'), () => {
+    applySongJournal(currentTrack.value);
+    loadWanderMessages();
+  }, { immediate: true });
 
   watch(activeLyricIndex, () => {
     scrollToActiveLyric();
@@ -715,6 +976,19 @@ watch(myVipCookie, (newVal) => {
     seekFromEvent,
     setVolume,
     cycleRepeatMode,
+    wanderMessages,
+    wanderInput,
+    wanderEmojiOpen,
+    wanderQuoteMsg,
+    sendWanderMessage,
+    insertWanderEmoji,
+    quoteWanderMessage,
+    deleteWanderMessage,
+    recallWanderMessage,
+    musicPetX,
+    musicPetY,
+    musicPetStyle: computed(() => ({ left: `${musicPetX.value}px`, top: `${musicPetY.value}px`, transform: `rotate(${musicPetRotation.value}deg)` })),
+    startMusicPetDrag,
 
     // 【播放器监听回调】
     onAudioTimeUpdate,
@@ -730,6 +1004,8 @@ watch(myVipCookie, (newVal) => {
     characters,
     currentCharacter,
     activeProfile,
-    callAI
-  };
-  };
+    callAI,
+    askMusicCharComment,
+    musicReplyToMyJournal
+ };
+}

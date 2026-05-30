@@ -22,9 +22,7 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Long+Cang&family=ZCOOL+XiaoWei&family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Caveat:wght@400;500;600&display=swap">
-    <link rel="stylesheet" href="main.css?v=uno2026043">
-    <link rel="stylesheet" href="style.css?v=uno2026048">
-    <link rel="stylesheet" href="cal.css?v=uno2026044">
+    <link rel="stylesheet" href="style.css">
     
     <script type="importmap">
         {
@@ -43,7 +41,7 @@
         <!-- 锁屏毛玻璃背景 -->
         <div v-if="isLockScreenVisible" class="lock-screen-background-blur"></div>
         <!-- 锁屏界面 -->
-        <div v-if="isLockScreenVisible" class="lockscreen" :style="{ backgroundImage: `url(${lockWallpaper})` }" @touchstart="lockTouchStart" @touchmove="lockTouchMove" @touchend="lockTouchEnd" @mousedown="lockMouseDown" @mousemove="lockMouseMove" @mouseup="lockMouseUp">
+        <div v-if="isLockScreenVisible" class="lockscreen" :style="{ backgroundImage: `url(${lockWallpaper})` }">
 
             
             <!-- 主时间显示 -->
@@ -997,7 +995,7 @@
                                         </div>
                                         <div v-if="msg.isCallMessage" class="call-content" :class="{ 'clickable': !!msg.callDiaryId }" @click.stop="openCallDiary(msg)">
                                             <span class="call-icon" :class="msg.callType === 'video' ? 'video' : 'voice'"></span>
-                                            {{ msg.text }}
+                                            <div class="wander-text">{{ msg.text }}</div>
                                             <small v-if="msg.callDiaryHint" class="call-diary-hint">{{ msg.callDiaryHint }}</small>
                                         </div>
                                         <div v-else-if="msg.messageType === 'image'" class="special-card polaroid-card">
@@ -2467,186 +2465,95 @@
             </nav>
         </div>
 
-        <!-- Feed App - Moments Style -->
-        <div
-            v-else-if="openedApp === 'feed'"
-            class="app-view feed-app"
-            :style="feed.momentsBgStyle"
-        >
-            <div class="feed-moments-bg-mask"></div>
-            <!-- Header -->
-            <div class="journal-header">
-                <button class="journal-back" @click="goBack">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
-                    </svg>
-                </button>
-                <h1 class="journal-title">FEED</h1>
-                <div class="journal-line">
-                    <span class="line-dot"></span>
-                </div>
-                <button class="journal-profile-btn" @click="feed.openProfile(feed.userProfile.name)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                </button>
-            </div>
-            
-            <div class="app-content journal-content" @scroll="feed.handleScroll" @click="feed.closeActionMenu()">
-                <!-- 加载状态 -->
-                <div v-if="feed.loading" class="journal-loading">
-                    <div class="journal-spinner"></div>
-                    <span>Loading...</span>
-                </div>
-                
-                <!-- 动态列表 -->
-                <div v-else class="journal-posts">
-                    <template v-for="(post, index) in feed.posts" :key="post.id">
-                        <!-- 只在日期变化时显示日期 -->
-                        <div v-if="index === 0 || new Date(post.id).toDateString() !== new Date(feed.posts[index - 1].id).toDateString()" class="entry-date">
-                            <span class="date-day">{{ new Date(post.id).getDate() }}</span>
-                            <span class="date-month">{{ ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][new Date(post.id).getMonth()] }}</span>
-                        </div>
-                        <div v-else class="entry-date entry-date-empty"></div>
-                        
-                        <div class="journal-entry">
-                            
-                            <!-- Content Card -->
-                            <div class="entry-card">
-                                <!-- Author -->
-                                <div class="entry-author" @click="feed.openProfile(post.author)">
-                                    <img :src="post.avatar || 'https://placehold.co/60x60?text=?'" class="author-avatar">
-                                    <span class="author-name">{{ post.author }}</span>
-                                </div>
-                                
-                                <!-- Content -->
-                                <div class="entry-content">
-                                    <p :class="['entry-text', { 'entry-quote': post.content && post.content.length < 30 }]">{{ post.content }}</p>
-                                    
-                                    <!-- Images - Stacked Style -->
-                                    <div v-if="post.images && post.images.length" class="entry-images" :class="{ 'single': post.images.length === 1, 'stacked': post.images.length > 1 }">
-                                        <div v-for="(img, idx) in post.images.slice(0, 4)" :key="idx"
-                                             class="entry-image-wrap"
-                                             @click="feed.openImageViewer(img, post.imageDescriptions && post.imageDescriptions[idx])">
-                                            <div class="tape" v-if="idx === 0"></div>
-                                            <!-- 文字图 -->
-                                            <div v-if="typeof img === 'object' && img.type === 'textImage'" class="text-image-display" :style="{ background: img.bgColor, padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }">
-                                                <div class="text-image-text" style="font-family: 'Playfair Display', Georgia, serif; font-size: 18px; font-weight: 500; color: #000; text-align: center;">{{ img.text }}</div>
-                                            </div>
-                                            <!-- AI 生成的描述图片 - 显示描述文字在图片上 -->
-                                            <div v-else-if="typeof img === 'string' && img.startsWith('mock:')" class="ai-image-display" :style="{ background: img.replace('mock:', ''), padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%', position: 'relative', overflow: 'hidden', cursor: 'pointer' }">
-                                                <div class="ai-image-text" style="font-family: 'Noto Serif SC', 'Playfair Display', Georgia, serif; font-size: 14px; font-weight: 400; color: #333; text-align: center; line-height: 1.6; max-height: 100%; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 8; -webkit-box-orient: vertical;">{{ post.imageDescriptions && post.imageDescriptions[idx] ? post.imageDescriptions[idx] : '图片' }}</div>
-                                                <div style="position: absolute; bottom: 8px; right: 8px; font-size: 10px; color: rgba(0,0,0,0.4); font-family: 'Inter', sans-serif;">AI生成</div>
-                                            </div>
-                                            <!-- 普通图片 -->
-                                            <img v-else-if="typeof img === 'string'" :src="img" class="entry-image" style="cursor: pointer;">
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="entry-meta-row">
-                                    <span class="entry-time">{{ new Date(post.id).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) }}</span>
-                                    <button v-if="post.author === feed.userProfile.name" class="delete-post-text" @click.stop="feed.deletePost(post.id)">删除</button>
-                                    <div class="entry-actions" @click.stop>
-                                        <button class="entry-action-trigger" @click="feed.toggleActionMenu(post.id)">
-                                            <i class="fas fa-ellipsis-h"></i>
-                                        </button>
-                                        <div v-if="feed.activeActionPostId === post.id" class="entry-action-pop">
-                                            <button class="action-icon" :class="{ active: post.isLiked }" @click="feed.toggleLike(post.id); feed.closeActionMenu()">赞</button>
-                                            <button class="action-icon" @click="feed.toggleCommentInput(post.id); feed.closeActionMenu()">评论</button>
-                                            <button class="action-icon ai-comment" @click="feed.openRoleCommentModal(post); feed.closeActionMenu()">Ta评</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div v-if="(post.likes && post.likes.length) || (post.comments && post.comments.length)" class="entry-stats">
-                                    <span v-if="post.likes && post.likes.length">{{ post.likes.length }} 人觉得很赞</span>
-                                    <span v-if="post.comments && post.comments.length">{{ post.comments.length }} 条评论</span>
-                                </div>
-                                
-                                <!-- Comments -->
-                                <div v-if="post.comments && post.comments.length" class="entry-comments">
-                                    <div v-for="comment in post.comments.slice(0, 3)" :key="comment.id" class="comment-item">
-                                        <div class="comment-line">
-                                            <span class="comment-author">{{ comment.user }}</span>
-                                            <span class="comment-text">{{ comment.content }}</span>
-                                            <span class="comment-time">{{ comment.time || '刚刚' }}</span>
-                                            <button v-if="comment.user === feed.userProfile.name" class="delete-comment-btn" @click.stop="feed.deleteComment(post.id, comment.id)">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                                </svg>
-                                            </button>
-                                            <button class="reply-btn" @click="feed.toggleReplyInput(comment.id)">回复</button>
-                                        </div>
-                                        
-                                        <!-- Replies -->
-                                        <div v-if="comment.replies && comment.replies.length" class="comment-replies">
-                                            <div v-for="reply in comment.replies" :key="reply.id" class="reply-item">
-                                                <span class="reply-author">{{ reply.user }}</span>
-                                                <span class="reply-text">{{ reply.content }}</span>
-                                                <span class="reply-time">{{ reply.time || '刚刚' }}</span>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Reply Input -->
-                                        <div v-if="feed.activeReplyCommentId === comment.id" class="reply-input">
-                                            <input name="sp_field_47" id="sp-field-47" type="text" v-model="feed.replyInput" placeholder="回复一下..." @keyup.enter="feed.submitComment(post.id, comment.id)">
-                                            <button @click="feed.submitComment(post.id, comment.id)">→</button>
-                                        </div>
-                                    </div>
-                                    <span v-if="post.comments.length > 3" class="more-comments">查看剩余 {{ post.comments.length - 3 }} 条评论</span>
-                                </div>
-                                
-                                <!-- Comment Input -->
-                                <div v-if="feed.activeCommentPostId === post.id" class="entry-comment-input">
-                                    <input name="sp_field_48" id="sp-field-48" type="text" v-model="feed.commentInput" placeholder="说点什么..." @keyup.enter="feed.submitComment(post.id)">
-                                    <button @click="feed.submitComment(post.id)">→</button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Separator -->
-                        <div v-if="index < feed.posts.length - 1" class="entry-separator">
-                            <span>*</span><span>*</span><span>*</span>
-                        </div>
-                    </template>
-                    
-                    <!-- 空状态 -->
-                    <div v-if="feed.posts.length === 0" class="journal-empty">
-                        <div class="empty-illustration">
-                            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <rect x="20" y="20" width="60" height="70" rx="4"/>
-                                <line x1="30" y1="35" x2="70" y2="35"/>
-                                <line x1="30" y1="50" x2="70" y2="50"/>
-                                <line x1="30" y1="65" x2="50" y2="65"/>
-                            </svg>
-                        </div>
-                        <p>还没有朋友圈动态。<br>发一条开始记录吧。</p>
+        <!-- Feed App -->
+        <div v-else-if="openedApp === 'feed'" class="app-view feed-app">
+            <div class="feed-screen" :style="feed.momentsBgStyle">
+                <div class="feed-screen-overlay"></div>
+                <header class="feed-topbar">
+                    <button class="feed-topbar-btn" @click="goBack" aria-label="返回">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="feed-topbar-center">
+                        <div class="feed-topbar-title">FEED</div>
+                        <div class="feed-topbar-line"></div>
                     </div>
-                </div>
-            </div>
-            
-            <!-- 发布按钮 -->
-            <button class="feed-fab" @click="feed.showFabMenu = !feed.showFabMenu">
-                <i class="fas fa-plus"></i>
-            </button>
-            
-            <!-- FAB选择菜单 -->
-            <div v-if="feed.showFabMenu" class="fab-menu-overlay" @click="feed.showFabMenu = false">
-                <div class="fab-menu" @click.stop>
-                    <button class="fab-menu-item" @click="feed.openCreatePost(); feed.showFabMenu = false">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 5v14M5 12h14"/>
-                        </svg>
-                        <span>自己发</span>
+                    <button class="feed-topbar-btn feed-avatar-btn" @click="feed.openProfile(feed.userProfile.name)" aria-label="个人资料">
+                        <img :src="feed.userProfile.avatar || 'https://placehold.co/80x80?text=Me'" alt="avatar">
                     </button>
-                    <button class="fab-menu-item" @click="feed.openRolePostModal(); feed.showFabMenu = false">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2"/>
-                        </svg>
-                        <span>TA发</span>
-                    </button>
+                </header>
+                <main class="feed-stage">
+                    <div class="feed-card-stack">
+                        <div class="feed-stack-layer feed-stack-layer-back-1"></div>
+                        <div class="feed-stack-layer feed-stack-layer-back-2"></div>
+                        <section v-if="feed.loading" class="feed-loading-card">
+                            <div class="feed-loading-spinner"></div>
+                            <div class="feed-loading-text">Loading...</div>
+                        </section>
+                        <section v-else class="feed-card-shell">
+                            <div class="feed-card-rail" @touchstart="feed.handleCardSwipeStart" @touchmove="feed.handleCardSwipeMove" @touchend="feed.handleCardSwipeEnd">
+                                <article v-for="(post, index) in feed.posts" :key="post.id" class="feed-card" :class="{ active: feed.activeCardIndex === index, prev: feed.activeCardIndex > index, next: feed.activeCardIndex < index }">
+                                    <div class="feed-card-head">
+                                        <div class="feed-user" @click="feed.openProfile(post.author)">
+                                            <img :src="post.avatar || 'https://placehold.co/100x100?text=?'" class="feed-user-avatar" alt="avatar">
+                                            <div class="feed-user-meta">
+                                                <div class="feed-user-name">{{ post.author }}</div>
+                                                <div class="feed-user-time">刚刚 · 仅你可见</div>
+                                            </div>
+                                        </div>
+                                        <button class="feed-more-btn" @click.stop="feed.toggleActionMenu(post.id)"><i class="fas fa-ellipsis-h"></i></button>
+                                    </div>
+                                    <div class="feed-copy">{{ post.content }}</div>
+                                    <div class="feed-media" v-if="post.images && post.images.length">
+                                        <div v-for="(img, idx) in post.images.slice(0, 1)" :key="idx" class="feed-media-frame" @click="feed.openImageViewer(img, post.imageDescriptions && post.imageDescriptions[idx])">
+                                            <img v-if="typeof img === 'string' && img.startsWith('data:image/')" :src="img" alt="post image">
+                                            <div v-else-if="typeof img === 'string' && img.startsWith('mock:')" class="feed-mock-image" :style="{ background: img.replace('mock:', '') }"><span>{{ post.imageDescriptions && post.imageDescriptions[idx] ? post.imageDescriptions[idx] : '图片' }}</span></div>
+                                            <div v-else-if="typeof img === 'object' && img.type === 'textImage'" class="feed-text-image" :style="{ background: img.bgColor }">{{ img.text }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="feed-actions">
+                                        <button class="feed-action-btn" @click.stop="feed.toggleLike(post.id)"><i class="far fa-heart"></i></button>
+                                        <button class="feed-action-btn" @click.stop="feed.toggleCommentInput(post.id)"><i class="far fa-comment"></i></button>
+                                        <button class="feed-action-btn"><i class="far fa-bookmark"></i></button>
+                                    </div>
+                                    <div class="feed-liked-row" v-if="post.likes && post.likes.length">
+                                        <img v-for="(like, i) in post.likes.slice(0, 3)" :key="i" src="https://placehold.co/48x48?text=☺" alt="like">
+                                        <span>他觉得这条动态很赞</span>
+                                    </div>
+                                    <div class="feed-comments-preview" v-if="post.comments && post.comments.length">
+                                        <div v-for="comment in post.comments.slice(0, 2)" :key="comment.id" class="feed-comment-item">
+                                            <span class="feed-comment-author">{{ comment.user }}</span>
+                                            <span class="feed-comment-text">{{ comment.content }}</span>
+                                        </div>
+                                    </div>
+                                    <div v-if="feed.activeCommentPostId === post.id" class="feed-comment-input">
+                                        <input name="sp_field_47" id="sp-field-47" type="text" v-model="feed.commentInput" placeholder="说点什么..." @keyup.enter="feed.submitComment(post.id)">
+                                        <button @click="feed.submitComment(post.id)">发送</button>
+                                    </div>
+                                    <div v-if="feed.activeActionPostId === post.id" class="feed-action-menu">
+                                        <button @click="feed.toggleLike(post.id); feed.closeActionMenu()">赞</button>
+                                        <button @click="feed.toggleCommentInput(post.id); feed.closeActionMenu()">评论</button>
+                                        <button @click="feed.openRoleCommentModal(post); feed.closeActionMenu()">TA评</button>
+                                    </div>
+                                    <div class="feed-card-foot">{{ index + 1 }} / {{ feed.posts.length }}</div>
+                                </article>
+                            </div>
+                            <div class="feed-carousel-nav">
+                                <button class="feed-nav-arrow" @click="feed.goToPreviousCard" :disabled="feed.activeCardIndex === 0"><i class="fas fa-chevron-left"></i></button>
+                                <div class="feed-dots">
+                                    <span v-for="(post, idx) in feed.posts" :key="post.id + '-dot'" class="feed-dot" :class="{ active: feed.activeCardIndex === idx }"></span>
+                                </div>
+                                <button class="feed-nav-arrow" @click="feed.goToNextCard" :disabled="feed.activeCardIndex >= feed.posts.length - 1"><i class="fas fa-chevron-right"></i></button>
+                            </div>
+                        </section>
+                    </div>
+                </main>
+                <button class="feed-fab" @click="feed.showFabMenu = !feed.showFabMenu" aria-label="发布">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <div class="feed-bottom-nav">
+                    <button class="feed-bottom-icon active"><i class="fas fa-house"></i></button>
+                    <button class="feed-bottom-icon"><i class="fas fa-circle-plus"></i></button>
+                    <button class="feed-bottom-icon"><i class="far fa-user"></i></button>
                 </div>
             </div>
             
@@ -4321,66 +4228,68 @@
                     </div>
 
                     <!-- Comments -->
-                    <div class="card read-card">
-                        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px;">
-                            <div style="font-weight:700;">
-                                留言区
-                                <span style="font-weight:600; color:rgba(0,0,0,0.55);">
-                                    （本作品）
-                                </span>
-                            </div>
+                    <div class="card read-card" style="background:rgba(255,255,255,0.9); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.2); border-radius:18px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px;">
+                            <div style="font-weight:700;">留言区 <span style="font-weight:600; color:rgba(0,0,0,0.45);">（本作品）</span></div>
                         </div>
 
                         <div v-if="read.activeWorkId == null" style="font-size:12px; color:rgba(0,0,0,0.6);">
                             暂无作品可评论。
                         </div>
 
-                        <div v-else style="display:flex; flex-direction:column; gap:12px;">
-                            <div style="display:flex; flex-direction:column; gap:10px;">
-                                <div v-for="c in read.activeWorkCommentsTree" :key="c.id" style="border-top:1px solid rgba(0,0,0,0.08); padding-top:12px;">
+                        <div v-else style="display:flex; flex-direction:column; gap:14px;">
+                            <div v-for="c in read.activeWorkCommentsTree" :key="c.id" style="display:flex; gap:12px; align-items:flex-start;">
+                                <div style="width:44px; flex:0 0 44px;">
+                                    <div style="width:44px; height:44px; border-radius:9999px; background:linear-gradient(135deg, rgba(87,107,149,0.18), rgba(87,107,149,0.35)); border:1px solid rgba(87,107,149,0.12);"></div>
+                                </div>
+                                <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:8px;">
                                     <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
-                                        <div style="font-weight:700;">
+                                        <div style="font-weight:700; color:#576b95;">
                                             {{ c.author }}
-                                            <span style="font-weight:500; font-size:12px; color:rgba(0,0,0,0.6); margin-left:8px;">
-                                                {{ read.formatTime(c.createdAt) }}
-                                            </span>
                                         </div>
-                                        <button class="btn-small" @click="read.openReply(c.id)">回复</button>
+                                        <span></span>
                                     </div>
-                                    <div style="margin-top:8px; white-space:pre-wrap; line-height:1.5;">
+
+                                    <div style="white-space:pre-wrap; line-height:1.7; color:#1f2937;">
                                         {{ c.content }}
                                     </div>
 
-                                    <div v-if="read.replyToCommentId === c.id" style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
-                                        <textarea name="sp_field_91" id="sp-field-91" v-model="read.replyInput" placeholder="写下你的回复..." rows="3" style="border:1px solid rgba(0,0,0,0.12); border-radius:10px; padding:10px; outline:none;"></textarea>
+                                    <div v-if="c.replies && c.replies.length" style="display:flex; flex-direction:column; gap:8px;">
+                                        <div v-for="r in c.replies" :key="r.id" style="background:rgba(0,0,0,0.05); border-radius:10px; padding:10px 12px;">
+                                            <div style="font-size:12px; color:#576b95; font-weight:700; display:flex; justify-content:space-between; gap:10px; align-items:center;">
+                                                <span>回复 {{ c.author }}</span>
+                                                <span style="font-weight:500; color:rgba(0,0,0,0.35);">{{ read.formatTime(r.createdAt) }}</span>
+                                            </div>
+                                            <div style="margin-top:6px; white-space:pre-wrap; line-height:1.7; color:#1f2937;">
+                                                {{ r.content }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div style="display:flex; justify-content:space-between; gap:10px; align-items:center; margin-top:2px;">
+                                        <div style="font-size:12px; color:rgba(0,0,0,0.4);">{{ read.formatTime(c.createdAt) }}</div>
+                                        <button class="btn-small" @click="read.openReply(c.id)" style="background:transparent; border:0; box-shadow:none; padding:0; color:rgba(0,0,0,0.45);">...</button>
+                                    </div>
+
+                                    <div v-if="read.replyToCommentId === c.id" style="margin-top:4px; display:flex; flex-direction:column; gap:8px;">
+                                        <textarea name="sp_field_91" id="sp-field-91" v-model="read.replyInput" placeholder="写下你的回复..." rows="3" style="border:1px solid rgba(0,0,0,0.08); background:rgba(0,0,0,0.03); border-radius:10px; padding:10px 12px; outline:none;"></textarea>
                                         <div style="display:flex; gap:10px; justify-content:flex-end;">
                                             <button class="btn-small" @click="read.cancelReply">取消</button>
                                             <button class="btn-small primary" @click="read.submitReply">发送回复</button>
                                         </div>
                                     </div>
-
-                                    <div v-if="c.replies && c.replies.length" style="margin-top:12px; display:flex; flex-direction:column; gap:10px;">
-                                        <div v-for="r in c.replies" :key="r.id" style="background:rgba(0,0,0,0.03); border-radius:12px; padding:10px;">
-                                            <div style="font-size:12px; color:rgba(0,0,0,0.65); font-weight:700;">
-                                                回复 {{ c.author }} · {{ read.formatTime(r.createdAt) }}
-                                            </div>
-                                            <div style="margin-top:6px; white-space:pre-wrap; line-height:1.5;">
-                                                {{ r.content }}
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
 
-                            <div style="border-top:1px solid rgba(0,0,0,0.08); padding-top:12px;">
+                            <div style="margin-top:4px; padding-top:12px;">
                                 <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px;">
                                     <div style="font-weight:700;">发表评论</div>
-                                    <button class="btn-small" @click="read.generateWorkComment" :disabled="read.isGeneratingComment">
+                                    <button class="btn-small" @click="read.generateWorkComment" :disabled="read.isGeneratingComment" style="background:transparent; border:0; box-shadow:none; padding:0; color:rgba(0,0,0,0.45);">
                                         <i class="fas fa-wand-magic-sparkles" style="margin-right:6px;"></i>
                                         {{ read.isGeneratingComment ? '生成中...' : 'AI 生成留言' }}
                                     </button>
                                 </div>
-                                <textarea name="sp_field_92" id="sp-field-92" v-model="read.newCommentInput" placeholder="写下你的评论（支持换行）..." rows="3" style="width:100%; border:1px solid rgba(0,0,0,0.12); border-radius:10px; padding:10px; outline:none;"></textarea>
+                                <textarea name="sp_field_92" id="sp-field-92" v-model="read.newCommentInput" placeholder="写下你的评论（支持换行）..." rows="3" style="width:100%; border:1px solid rgba(0,0,0,0.08); background:rgba(0,0,0,0.03); border-radius:12px; padding:12px; outline:none;"></textarea>
                                 <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:10px;">
                                     <button class="btn-small" @click="read.newCommentInput=''" :disabled="!read.newCommentInput">清空</button>
                                     <button class="btn-small primary" @click="read.submitNewComment" :disabled="!read.newCommentInput">发送</button>
@@ -5421,6 +5330,35 @@
                             </div>
                         </div>
 
+                        <div class="setting-item setting-item-full">
+                            <div class="setting-info">
+                                <div class="setting-label">我的背景</div>
+                                <div class="setting-desc">和「我的收藏」同级设置，支持链接、预览和清除</div>
+                            </div>
+                            <div class="lock-wallpaper-setting" style="display:block;width:100%;margin-top:10px;">
+                                <div style="display:flex;gap:10px;align-items:center;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:10px;">
+                                    <input
+                                        name="sp_field_200"
+                                        id="sp-field-200"
+                                        type="url"
+                                        class="lock-wallpaper-input"
+                                        v-model="mineCollectionBgInput"
+                                        placeholder="粘贴背景图链接（https://...）"
+                                        style="flex:1;border-radius:12px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);padding:10px 12px;"
+                                    >
+                                    <button class="lock-wallpaper-save-btn" @click="applyMineCollectionBgLink" style="border-radius:12px;padding:10px 14px;">应用</button>
+                                    <button class="lock-color-save-btn" @click="clearMineCollectionBg" style="border-radius:12px;padding:10px 14px;">清除</button>
+                                </div>
+                                <div style="margin-top:10px;height:72px;border-radius:12px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);overflow:hidden;position:relative;">
+                                    <div v-if="mineCollectionBg" :style="{ position:'absolute', inset:0, background: `url(${mineCollectionBg}) center/cover no-repeat` }"></div>
+                                    <div :style="{ position:'absolute', inset:0, background:'linear-gradient(90deg, rgba(0,0,0,.25), rgba(0,0,0,.08))' }"></div>
+                                    <div style="position:relative;z-index:1;height:100%;display:flex;align-items:center;padding:0 12px;font-size:12px;color:rgba(255,255,255,0.92);">
+                                        {{ mineCollectionBg ? '已设置背景（预览）' : '未设置收藏背景' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- 主界面毛玻璃开关 -->
                         <div class="setting-item">
                             <div class="setting-info">
@@ -5502,7 +5440,7 @@
         <div v-else-if="openedApp === 'music'" class="app-view music-view">
             <div class="music-app-shell">
                 <audio ref="musicAudioRef" preload="metadata" @timeupdate="onMusicAudioTimeUpdate" @loadedmetadata="onMusicAudioLoadedMetadata" @play="onMusicAudioPlay" @pause="onMusicAudioPause" @waiting="onMusicAudioWaiting" @canplay="onMusicAudioCanPlay" @error="onMusicAudioError" @ended="onMusicAudioEnded"></audio>
-                <div class="music-app-header">
+                <div class="music-app-header music-app-header-fixed">
                     <button class="back-btn music-back-btn music-back-btn-flat" @click="(music.activeTab === 'mine' && music.currentSubPage) ? (music.currentSubPage = null) : closeApp()" :aria-label="(music.activeTab === 'mine' && music.currentSubPage) ? '返回我的页面' : '返回桌面'" :title="(music.activeTab === 'mine' && music.currentSubPage) ? '返回我的页面' : '返回桌面'"><i class="fas fa-chevron-left"></i></button>
                     <div class="music-app-title-wrap music-app-title-wrap-center">
                         <div class="music-app-title music-app-title-main">SOUL MUSIC</div>
@@ -5511,6 +5449,11 @@
                         <span class="music-header-disc-orbit"></span>
                         <img class="music-header-disc-cover" :class="{ 'is-spinning': music.isPlaying }" :src="currentTrack.cover || selectedCharacter.avatarUrl || 'https://placehold.co/120x120?text=Char'" :alt="currentTrack.title || '当前歌曲封面'">
                     </button>
+                </div>
+                <div class="music-record-pet" :style="musicPetStyle" @mousedown.prevent="startMusicPetDrag" @touchstart.prevent="startMusicPetDrag">
+                    <div class="music-record-pet-disc" :class="{ spinning: music.isPlaying }">
+                        <div class="music-record-pet-hole"></div>
+                    </div>
                 </div>
 
                 <template v-if="music.activeTab === 'home'">
@@ -5648,19 +5591,31 @@
                                     </div>
                                     <div v-else-if="music.viewMode === 'private'" key="discover-private" class="music-discover-private-wrap journal-canvas">
                                         <div class="journal-block journal-top">
-                                            <div class="journal-label">许临野的手记</div>
-                                            <p>夜色落在耳机外壳上，像一层薄薄的雾。鼓点并不急，却在每一次回响里把白天的噪声慢慢拧紧，再温柔地松开。人声贴着心口掠过的时候，我忽然想起那些没有说出口的话：原来沉默也有旋律，原来想念可以被一首歌悄悄托住。窗外灯火明灭，城市仍在奔跑，而我愿意把这一分钟折起来，放进你会路过的明天。</p>
-                                            <div class="journal-stamp">2024.11.23</div>
+                                            <div class="journal-label-row">
+                                                <div class="journal-label">{{ selectedCharacter.nickname || selectedCharacter.name || 'Kumo' }} 的手记</div>
+                                                <button class="journal-ai-btn" @click="askMusicCharComment(currentTrack)" :disabled="music.aiJournalLoading" aria-label="AI 生成手记感谢">
+                                                    <i class="fas" :class="music.aiJournalLoading ? 'fa-spinner fa-spin' : 'fa-hourglass-half'"></i>
+                                                </button>
+                                            </div>
+                                            <p>{{ music.aiJournalText || '' }}</p>
+                                            <div class="journal-stamp">{{ music.aiJournalLoading ? '生成中...' : fullDate }}</div>
                                         </div>
 
                                         <div class="journal-block journal-bottom">
                                             <div class="journal-label">我的感悟</div>
-                                            <p>我在副歌里听见了某种笃定：不是喧哗的热烈，而是很慢、很轻，却始终不退场的陪伴。那些被日常磨平的情绪，在旋律的缝隙里重新长出边角。好像终于可以承认，自己也会在深夜里需要一句无声的回应。于是我把此刻写下来，不为了证明什么，只是想在未来某个疲惫的夜晚，翻到这一页时还能记得——我们曾在同一段频率里，安静而完整地存在过。</p>
-                                            <div class="journal-stamp">2024.11.23</div>
+                                            <p v-if="music.myJournalInput" style="font-size:20px;line-height:1.5;">{{ music.myJournalInput }}</p>
+                                            <p v-if="music.myJournalReply"><strong>{{ selectedCharacter.nickname || selectedCharacter.name || 'Kumo' }}：</strong>{{ music.myJournalReply }}</p>
+                                            <div class="journal-stamp">{{ fullDate }}</div>
                                         </div>
 
                                         <div class="journal-compose-hint">
-                                            <span>记下这一刻的思绪...</span>
+                                            <input
+                                                v-model="music.myJournalInput"
+                                                class="journal-inline-input"
+                                                type="text"
+                                                placeholder=""
+                                                @keydown.enter.prevent="musicReplyToMyJournal; music.myJournalInput = ''"
+                                            >
                                             <div class="journal-compose-line-wrap">
                                                 <div class="journal-compose-line"></div>
                                                 <button class="journal-archive-btn" aria-label="封存日记"><i class="fas fa-box-archive"></i></button>
@@ -5736,50 +5691,34 @@
                     <div class="music-page music-wander-page">
                         <div class="music-wander-head">
                             <div>
-                                <h3>和 {{ selectedCharacter.nickname || selectedCharacter.name || 'Kumo' }} 的漫游中...</h3>
+                                <h3>漫游中...</h3>
                                 <p>深夜 · 东京</p>
                             </div>
-                            <button class="music-wander-more" aria-label="更多"><i class="fas fa-ellipsis"></i></button>
                         </div>
 
-                        <div class="music-wander-chat">
-                            <div class="wander-row left">
-                                <img :src="selectedCharacter.avatarUrl || 'https://placehold.co/80x80?text=C'" class="wander-avatar" alt="char">
-                                <div class="wander-bubble">这首歌的前奏一起听了好多次了呢。</div>
-                                <span class="wander-time">23:17</span>
+                        <div class="music-wander-chat" ref="wanderChatBox">
+                            <div v-if="!music.wanderMessages.length" class="wander-empty-state">
+                                <div class="wander-empty-title">开始一段漫游聊天</div>
+                                <div class="wander-empty-desc">你可以先发一句，或者点击表情、引用上一条消息。对方会结合人设和当前歌曲回应你。</div>
                             </div>
-                            <div class="wander-row right">
-                                <span class="wander-time">23:18</span>
-                                <div class="wander-bubble">嗯，每次听都有不一样的感觉。</div>
-                                <img :src="userAvatar || 'https://placehold.co/80x80?text=U'" class="wander-avatar" alt="you">
+                            <div v-for="msg in music.wanderMessages" :key="msg.id" class="wander-row" :class="msg.sender === 'user' ? 'right' : 'left'" @contextmenu="onMessageContextMenu($event, msg)" @touchstart="onMessageTouchStart($event, msg)" @touchmove="onMessageTouchMove" @touchend="onMessageTouchEnd">
+                                <div class="wander-bubble-wrap">
+                                    <div class="wander-bubble" :class="{ recalled: msg.recalled, user: msg.sender === 'user', ai: msg.sender !== 'user' }">
+                                        <template v-if="msg.quoteFrom"><div class="wander-quote">{{ msg.quoteFrom }}</div></template>
+                                        <div class="wander-text">{{ msg.text }}</div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="wander-row left">
-                                <img :src="selectedCharacter.avatarUrl || 'https://placehold.co/80x80?text=C'" class="wander-avatar" alt="char">
-                                <div class="wander-bubble">因为那时候的心情不一样吧。</div>
-                                <span class="wander-time">23:19</span>
-                            </div>
-                            <div class="wander-row right">
-                                <span class="wander-time">23:20</span>
-                                <div class="wander-bubble">可能吧。但有些瞬间，好像永远不会变。</div>
-                                <img :src="userAvatar || 'https://placehold.co/80x80?text=U'" class="wander-avatar" alt="you">
-                            </div>
-                            <div class="wander-row left">
-                                <img :src="selectedCharacter.avatarUrl || 'https://placehold.co/80x80?text=C'" class="wander-avatar" alt="char">
-                                <div class="wander-bubble">比如现在？</div>
-                                <span class="wander-time">23:20</span>
-                            </div>
-                            <div class="wander-row right">
-                                <span class="wander-time">23:20</span>
-                                <div class="wander-bubble">比如现在。</div>
-                                <img :src="userAvatar || 'https://placehold.co/80x80?text=U'" class="wander-avatar" alt="you">
-                            </div>
-                            <div class="wander-typing">{{ selectedCharacter.nickname || selectedCharacter.name || 'Kumo' }} 正在输入...</div>
+                            <div v-if="music.aiJournalLoading" class="wander-reply-state wander-reply-state-global"><span class="wander-reply-dot"></span>{{ selectedCharacter.nickname || selectedCharacter.name || 'Kumo' }} 正在回复中...</div>
                         </div>
 
                         <div class="music-wander-inputbar">
-                            <button class="wander-icon"><i class="far fa-face-smile"></i></button>
-                            <input type="text" :placeholder="`想对 ${selectedCharacter.nickname || selectedCharacter.name || 'Kumo'} 说点什么...`">
-                            <button class="wander-send"><i class="far fa-paper-plane"></i></button>
+                            <button class="wander-icon" @click="music.wanderEmojiOpen = !music.wanderEmojiOpen"><i class="far fa-face-smile"></i></button>
+                            <input v-model="music.wanderInput" type="text" :placeholder="`想对 ${selectedCharacter.nickname || selectedCharacter.name || 'Kumo'} 说点什么...`" @keydown.enter.prevent="sendWanderMessage">
+                            <button class="wander-send" @click="sendWanderMessage"><i class="far fa-paper-plane"></i></button>
+                        </div>
+                        <div v-if="music.wanderEmojiOpen" class="wander-emoji-panel">
+                            <button v-for="e in ['😀','🥺','😭','✨','🌙','🎧','💭','🖤']" :key="e" @click="insertWanderEmoji(e)">{{ e }}</button>
                         </div>
                     </div>
                 </template>
@@ -5788,8 +5727,8 @@
                     <div v-if="music.currentSubPage" class="music-page music-page-sub-host">
                         <sub-playlist
                             :title="music.currentSubPage === 'liked' ? '我喜欢的音乐' : (music.currentSubPage === 'shared' ? '一起听过的歌' : (music.currentSubPage === 'xuly' ? (selectedCharacter.nickname || selectedCharacter.name || '许临野') + ' 的歌单' : '治愈时刻'))"
-                            :description="music.currentSubPage === 'liked' ? '每一首心动，都在这里被重新点亮。' : (music.currentSubPage === 'shared' ? '在这个平行宇宙，我们共享了 230 段旋律。' : (music.currentSubPage === 'xuly' ? '那些他悄悄塞给你的旋律。' : '深夜的避风港。'))"
-                            :tracks="music.playlist.slice(0, 20).map((track, i) => ({ id: 'sub-' + i, title: track.title, artist: track.artist, time: track.duration, cover: track.cover }))"
+                            :description="music.currentSubPage === 'liked' ? '你点过收藏的歌曲都会在这里。' : (music.currentSubPage === 'shared' ? '和 TA 一起听过的历史播放记录。' : (music.currentSubPage === 'xuly' ? '这个人的专属歌单，和首页保持一致。' : '随便放一点轻松的歌。'))"
+                            :tracks="(music.currentSubPage === 'liked' ? music.favorites : (music.currentSubPage === 'shared' ? music.recents : (music.currentSubPage === 'xuly' ? (music.charPlaylists || []) : (music.recommendedPlaylists || music.playlist.slice(0, 20))))).slice(0, 20).map((track, i) => ({ id: 'sub-' + i, title: track.title, artist: track.artist, time: track.duration, cover: track.cover }))"
                             @back="music.currentSubPage = null"
                             @play-all="music.playlist.length && musicPlayFromQueue(0)"
                             @play-track="(_track, i) => musicPlayFromQueue(i)"
@@ -5799,15 +5738,48 @@
                         <section class="mine-hero">
                             <img class="mine-hero-avatar" :src="userAvatar || 'https://picsum.photos/200/200'" alt="我的头像">
                             <div class="mine-hero-main">
-                                <div class="mine-hero-title">我</div>
-                                <div class="mine-hero-sub">灵魂编号：9527</div>
-                                <div class="mine-hero-quote">“音乐是灵魂的另一种语言。”</div>
-
-                                <button v-if="!myVipCookie" @click="openLoginModal()" style="margin-top: 8px; font-size: 11px; padding: 4px 10px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.1); border-radius: 999px; width: fit-content; text-align: center;">绑定网易云账号</button>
-
-<button v-else @click="music.logoutNetease()" style="margin-top: 8px; font-size: 11px; padding: 4px 10px; background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 999px; width: fit-content; text-align: center;">退出网易云</button>
+                                <div class="mine-hero-title mine-edit-trigger" @click="openMineProfileEditor('title')">{{ mineHeroTitle }}</div>
+                                <div class="mine-hero-sub mine-edit-trigger" @click="openMineProfileEditor('sub')">{{ mineHeroSub }}</div>
+                                <div class="mine-hero-quote mine-edit-trigger" @click="openMineProfileEditor('quote')">{{ mineHeroQuote }}</div>
                             </div>
                         </section>
+
+                        <transition name="mine-float-fade">
+                            <div v-if="showMineProfileEditor" class="mine-edit-overlay" @click="closeMineProfileEditor">
+                                <div class="mine-edit-sheet" @click.stop>
+                                    <div class="mine-edit-kicker">编辑资料</div>
+                                    <div class="mine-edit-title">{{ mineProfileField === 'title' ? '昵称' : (mineProfileField === 'sub' ? '灵魂编号' : '签名') }}</div>
+                                    <input
+                                        v-if="mineProfileField === 'title'"
+                                        v-model="mineHeroTitleInput"
+                                        class="mine-edit-input"
+                                        type="text"
+                                        placeholder="输入昵称"
+                                        autofocus
+                                    >
+                                    <input
+                                        v-else-if="mineProfileField === 'sub'"
+                                        v-model="mineHeroSubInput"
+                                        class="mine-edit-input"
+                                        type="text"
+                                        placeholder="输入灵魂编号"
+                                        autofocus
+                                    >
+                                    <input
+                                        v-else
+                                        v-model="mineHeroQuoteInput"
+                                        class="mine-edit-input"
+                                        type="text"
+                                        placeholder="输入签名"
+                                        autofocus
+                                    >
+                                    <div class="mine-edit-actions">
+                                        <button class="mine-edit-btn ghost" @click="closeMineProfileEditor">取消</button>
+                                        <button class="mine-edit-btn solid" @click="saveMineProfileField">保存</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </transition>
 
                         <section class="mine-stats-grid">
                             <div><strong>{{ music.recents.length || 124 }}</strong><span>一起听歌（天）</span></div>
@@ -5833,11 +5805,26 @@
                         </section>
 
                         <section class="mine-row-head"><h3>我的收藏</h3><button>创建歌单 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></section>
-                        <section class="mine-collection-grid">
-                            <button class="mine-collection-card" @click="music.currentSubPage = 'liked'"><span class="mine-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-9.5-8C.5 9.5 2.5 5 7 5c2 0 3.4 1 5 2.6C13.6 6 15 5 17 5c4.5 0 6.5 4.5 4.5 8-2.5 3.65-9.5 8-9.5 8z"/></svg></span><div><h4>我喜欢的音乐</h4><p>{{ music.favorites.length || 128 }} 首</p></div></button>
-                            <button class="mine-collection-card" @click="music.currentSubPage = 'shared'"><span class="mine-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 15V9m16 6V9M8 17V7m8 10V7"/><path d="M2 15h4m12 0h4"/></svg></span><div><h4>一起听过的歌</h4><p>{{ music.recents.length + 200 }} 首</p></div></button>
-                            <button class="mine-collection-card" @click="music.currentSubPage = 'xuly'"><span class="mine-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1L3.2 9.4l6.1-.9z"/></svg></span><div><h4>{{ selectedCharacter.nickname || selectedCharacter.name || 'Kumo' }} 的歌单</h4><p>12 个</p></div></button>
-                            <button class="mine-collection-card" @click="music.currentSubPage = 'heal'"><span class="mine-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 3a8 8 0 108 8 7 7 0 01-8-8z"/></svg></span><div><h4>治愈时刻</h4><p>68 首</p></div></button>
+                        <section class="mine-collection-grid" :style="mineCollectionBg ? { background: `linear-gradient(rgba(8,8,12,.42), rgba(8,8,12,.42)), url(${mineCollectionBg}) center/cover no-repeat`, borderRadius: '18px', padding: '12px', boxShadow: '0 10px 30px rgba(0,0,0,.18)' } : {}">
+                            <button class="mine-collection-card" @click="music.currentSubPage = 'liked'"><span class="mine-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-9.5-8C.5 9.5 2.5 5 7 5c2 0 3.4 1 5 2.6C13.6 6 15 5 17 5c4.5 0 6.5 4.5 4.5 8-2.5 3.65-9.5 8-9.5 8z"/></svg></span><div><h4>我喜欢的音乐</h4><p>{{ music.favorites.length || 0 }} 首</p></div></button>
+                            <button class="mine-collection-card" @click="music.currentSubPage = 'shared'"><span class="mine-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 15V9m16 6V9M8 17V7m8 10V7"/><path d="M2 15h4m12 0h4"/></svg></span><div><h4>一起听过的歌</h4><p>{{ music.recents.length || 0 }} 首</p></div></button>
+                            <button class="mine-collection-card" @click="music.currentSubPage = 'xuly'"><span class="mine-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1L3.2 9.4l6.1-.9z"/></svg></span><div><h4>{{ selectedCharacter.nickname || selectedCharacter.name || 'Kumo' }} 的歌单</h4><p>{{ (music.charPlaylists || []).length || 0 }} 首</p></div></button>
+                            <button class="mine-collection-card" @click="music.currentSubPage = 'heal'"><span class="mine-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 3a8 8 0 108 8 7 7 0 01-8-8z"/></svg></span><div><h4>治愈时刻</h4><p>{{ (music.recommendedPlaylists || []).length || 0 }} 首</p></div></button>
+                        </section>
+                        <section class="mine-row-head"><h3>设置</h3><button>背景 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4"/></svg></button></section>
+                        <section class="mine-profile-editor" style="margin-top:10px;padding:14px;border-radius:18px;background:linear-gradient(160deg,rgba(20,22,34,.58),rgba(16,18,28,.38));border:1px solid rgba(255,255,255,.10);box-shadow:0 12px 34px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.06);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);">
+                            <div class="mine-profile-editor-title" style="color:rgba(255,255,255,.92);font-weight:700;letter-spacing:.2px;margin-bottom:10px;">我的背景</div>
+                            <div style="position:relative;height:110px;border-radius:14px;overflow:hidden;margin-bottom:12px;background:linear-gradient(135deg,#0f0f10,#161616 50%,#202020);border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);">
+                                <div :style="mineCollectionBg ? { position:'absolute', inset:'0', background:`linear-gradient(180deg,rgba(0,0,0,.32),rgba(0,0,0,.52)),url(${mineCollectionBg}) center/cover no-repeat` } : { position:'absolute', inset:'0', background:'linear-gradient(120deg,rgba(255,255,255,.08),rgba(255,255,255,.03),rgba(0,0,0,.22))' }"></div>
+                                <div style="position:absolute;left:12px;bottom:10px;color:rgba(255,255,255,.86);font-size:12px;letter-spacing:.3px;">当前背景预览</div>
+                            </div>
+                            <div class="mine-profile-editor-grid" style="display:block;">
+                                <input v-model="mineCollectionBgInput" type="url" class="mine-beauty-input" placeholder="粘贴背景图链接（https://...）" style="width:100%;height:38px;padding:0 12px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:rgba(255,255,255,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);outline:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.08);">
+                            </div>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+                                <button @click="applyMineCollectionBgLink" style="height:34px;padding:0 14px;border:none;border-radius:999px;background:linear-gradient(135deg,#f2f2f2,#bdbdbd);color:#111;font-size:12px;font-weight:600;letter-spacing:.2px;box-shadow:0 8px 20px rgba(0,0,0,.26);">应用背景</button>
+                                <button @click="clearMineCollectionBg" style="height:34px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06);color:rgba(255,255,255,.86);font-size:12px;font-weight:600;">清除背景</button>
+                            </div>
                         </section>
                     </div>
                 </template>
@@ -5860,29 +5847,7 @@
                         <span>我的</span>
                     </button>
                 </div>
-                <div v-if="loginState?.isModalOpen" class="phone-login-modal" @click.self="music.closeLoginModal()">
-                    <div class="phone-login-panel">
-                        <h3>网易云音乐授权</h3>
-                        <p class="phone-login-status" :class="{ 'error': (music.loginState?.statusMsg || '').includes('失败') || (music.loginState?.statusMsg || '').includes('过期') }">
-                            {{ music.loginState?.statusMsg || '请使用网易云音乐 APP 扫码' }}
-                        </p>
-                        
-                        <div style="background: #ffffff; padding: 12px; border-radius: 18px; width: 180px; height: 180px; margin: 0 auto 28px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);">
-                            <img v-if="music.loginState?.qrImg" :src="music.loginState.qrImg" style="width: 100%; height: 100%; border-radius: 8px; display: block;">
-                            <div v-else style="display: flex; align-items: center; justify-content: center; height: 100%; color: #000;">
-                                <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #2997ff;"></i>
-                            </div>
-                        </div>
-                        
-                        <div class="phone-login-actions">
-                            <button class="btn-cancel" style="width: 100%; flex: none;" @click="music.closeLoginModal()">取消登录</button>
-                        </div>
-                
-                        <div class="login-disclaimer">
-                            <i class="fas fa-shield-alt"></i> 扫码授权仅用于同步网易云音源，不做他用
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </div>
 
@@ -6456,7 +6421,7 @@
             </div>
         </div>
     </div>
-
     <script type="module" src="main.js?v=uno202604"></script>
+
 </body>
 </html>

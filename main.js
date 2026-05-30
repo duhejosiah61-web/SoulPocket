@@ -9,21 +9,26 @@ const SubPlaylist = {
     },
     emits: ['back', 'play-all', 'play-track'],
     template: `
-      <section class="sub-playlist-page">
-        <section class="sub-header">
-          <h1>{{ title }}</h1>
-          <p>{{ description }}</p>
-          <button class="play-all" @click="$emit('play-all')">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6v12l10-6z"/></svg>
+      <section class="sub-playlist-page sub-playlist-frost">
+        <section class="sub-header sub-header-frost">
+          <div class="sub-header-copy">
+            <div class="sub-kicker">漫游歌单</div>
+            <h1>{{ title }}</h1>
+            <p>{{ description }}</p>
+          </div>
+          <button class="play-all sub-playlist-cta" @click="$emit('play-all')">
+            <span class="play-all-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M8 6v12l10-6z"/></svg>
+            </span>
             播放全部
           </button>
         </section>
 
-        <section class="track-list">
+        <section class="track-list sub-track-list">
           <button
             v-for="(track, i) in tracks"
             :key="track.id || i"
-            class="track-item"
+            class="track-item sub-track-item"
             @click="$emit('play-track', track, i)"
           >
             <img class="cover" :src="track.cover || 'https://picsum.photos/96/96'" alt="cover" />
